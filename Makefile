@@ -1,10 +1,10 @@
-all: sample2D
+all: Projectile2D
 
-#sample3D: Sample_GL3_3D.cpp glad.c
-#	g++ -o sample3D Sample_GL3.cpp glad.c -lGL -lglfw
+#sample2D: Sample_GL3_2D.cpp glad.c
+#	g++ -o sample2D Sample_GL3_2D.cpp glad.c -lGL -lglfw -ldl
 
-sample2D: Sample_GL3_2D.cpp glad.c
-	g++ -o sample2D Sample_GL3_2D.cpp glad.c -lGL -lglfw -ldl
+Projectile2D: Projectile1.cpp glad.c
+	g++ -o Projectile2D Projectile1.cpp glad.c -lGL -lglfw -ldl
 
 clean:
-	rm sample2D #sample3D
+	rm Projectile2D #sample3D

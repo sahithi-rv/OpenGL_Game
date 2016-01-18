@@ -1,8 +1,10 @@
 #include "Projectile.hpp"
 //#include "utility.hpp"
 
-Projectile projectile;
+Projectile *projectile;
 
+
+//float rec_vel = 0;
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
 void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -73,13 +75,12 @@ void createRectangle ()
   };
 
   // create3DObject creates and returns a handle to a VAO that can be used later
-  projectile.rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+  projectile->rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
 }
 
 float camera_rotation_angle = 90;
-//float projectile.rectangle_rotation = 0;
+//float projectile->rectangle_rotation = 0;
 
-float rec_vel = 0;
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
 void draw ()
@@ -98,43 +99,19 @@ void draw ()
   // Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
   glm::vec3 up (0, 1, 0);
 
-  // Compute Camera matrix (view)
-  // Matrices.view = glm::lookAt( eye, target, up ); // Rotating Camera for 3D
-  //  Don't change unless you are sure!!
-  Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
-
-  // Compute ViewProject matrix as view/camera might not be changed for this frame (basic scenario)
-  //  Don't change unless you are sure!!
-  glm::mat4 VP = Matrices.projection * Matrices.view;
-
   // Send our transformation to the currently bound shader, in the "MVP" uniform
   // For each model you render, since the MVP will be different (at least the M part)
   //  Don't change unless you are sure!!
-  glm::mat4 MVP;	// MVP = Projection * View * Model
-
-  // Load identity to model matrix
-  Matrices.model = glm::mat4(1.0f);
-
-  /* Render your scene */
-
-  // Pop matrix to undo transformations till last push matrix instead of recomputing model matrix
-  // glPopMatrix ();
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translateRectangle = glm::translate (glm::vec3(rec_vel, 0, 0));        // glTranslatef
- // glm::mat4 rotateRectangle = glm::rotate((float)(projectile.rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
-  Matrices.model *= (translateRectangle );//* rotateRectangle);
-  MVP = VP * Matrices.model;
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+  projectile->renderProjectile();
 
   // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(projectile.rectangle);
+  draw3DObject(projectile->rectangle);
 
   // Increment angles
-  float increments = 1;
+ // float increments = 1;
 
   //camera_rotation_angle++; // Simulating camera rotation
-  //projectile.rectangle_rotation = projectile.rectangle_rotation + increments*projectile.rectangle_rot_dir*projectile.rectangle_rot_status;
+  //projectile->rectangle_rotation = projectile->rectangle_rotation + increments*projectile->rectangle_rot_dir*projectile->rectangle_rot_status;
 }
 
 /* Initialise glfw window, I/O callbacks and the renderer to use */
@@ -202,17 +179,18 @@ void initGL (GLFWwindow* window, int width, int height)
     -4,-4,0
   };
 
-  GLfloat color[]={
-    1,1,0,
-    1,1,0,
-    1,1,0,
+  GLfloat colors[]={
+    1,1,1,
+    1,1,1,
+    1,1,1,
     
-    1,1,0,
-    1,1,0,
-    1,1,0
+    1,1,1,
+    1,1,1,
+    1,1,1
   };
-  projectile.setInitVertices(vertices);
-	projectile.createRectangle ();
+  projectile->setInitVertices(vertices);
+  projectile->setInitColors(colors);
+	projectile->createRectangle ();
 	
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
@@ -239,7 +217,7 @@ int main (int argc, char** argv)
 {
 	int width = 600;
 	int height = 600;
-
+    projectile = new Projectile(0,-1*VELOCITY,DISPLACEMENT*0.9,DISPLACEMENT,0,0);
     GLFWwindow* window = initGLFW(width, height);
 
 	  initGL (window, width, height);
@@ -263,7 +241,8 @@ int main (int argc, char** argv)
         current_time = glfwGetTime(); // Time in seconds
         if ((current_time - last_update_time) >= 0.05) { // atleast 0.5s elapsed since last frame
             // do something every 0.5 seconds ..
-            rec_vel+=DISPLACEMENT+VELOCITY*(current_time-start_time);
+            projectile->updatePosition(current_time-start_time);
+            //rec_vel+=DISPLACEMENT+VELOCITY*(current_time-start_time);
             last_update_time = current_time;
         }
     }

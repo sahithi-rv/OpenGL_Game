@@ -10,8 +10,8 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define DISPLACEMENT 0.05
-#define VELOCITY 0.1
+#define DISPLACEMENT 0.5
+#define VELOCITY 0.15
 #define SCREEN_WIDTH 600
 #define SCREEN_HEIGHT 600
 #define GLM_FORCE_RADIANS

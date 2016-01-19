@@ -190,3 +190,5 @@ void reshapeWindow (GLFWwindow* window, int width, int height)
     // Ortho projection for 2D views
     Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
 }
+
+

@@ -14,14 +14,44 @@ class Projectile{
 		float v_y;
 		float s_x;
 		float s_y;
+		float sideX,sideY;
 		VAO  *rectangle;
-		Projectile(float vx,float vy,float dx,float dy,float x,float y){
+		Projectile(float vx,float vy,float dx,float dy,float x,float y,float sdX,float sdY){
 			gravity = vy;
 			ax=0;
 			v_x = dx;
 			v_y = dy;
 			s_x=x;
 			s_y=y;
+			sideX=sdX;
+			sideY=sdY;
+
+		}
+
+		float getX(){ return s_x ;}
+
+		float getY(){ return s_y ;}
+
+		float getSideX(){
+			return sideX;
+		}
+
+		float getSideY(){
+			return sideY;
+		}
+
+		float getVX(){
+			return v_x;
+		}
+		float getVY(){
+			return v_y;
+		}
+
+		void setVX(float dx){
+			v_x=dx;
+		}
+		void setVY(float dy){
+			v_y=dy;
 		}
 
 		void setInitVertices( GLfloat vertex_buffer_data[]){
@@ -66,7 +96,7 @@ class Projectile{
   			// glPopMatrix ();
   			Matrices.model = glm::mat4(1.0f);
 
-  			glm::mat4 translateRectangle = glm::translate (glm::vec3(this->s_x,this->s_y, 0));        // glTranslatef
+  			glm::mat4 translateRectangle = glm::translate (glm::vec3(s_x,s_y, 0));        // glTranslatef
  			// glm::mat4 rotateRectangle = glm::rotate((float)(projectile.rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
   			Matrices.model *= (translateRectangle );//* rotateRectangle);
   			MVP = VP * Matrices.model;
@@ -74,9 +104,9 @@ class Projectile{
   		}
 
   		void updatePosition(double time){
-  			this->s_x+=this->v_x + this->ax*time;
-  			this->s_y+= this->v_y + this->gravity*time;
-  			this->v_y+=this->gravity*time;
+  			s_x+=v_x + ax*time;
+  			s_y+= v_y + gravity*time;
+  			v_y+=gravity*time;
   		}
 };
 
@@ -91,11 +121,27 @@ public:
 	VAO  *rectangle;
 	float rectangle_rotation;
 	float vx,vy,vz;
-	Canon(float rot,float v_x,float v_y,float v_z){
+	float sideX,sideY;
+
+	Canon(float rot,float v_x,float v_y,float v_z,float sdX,float sdY){
 		rectangle_rotation=rot;
 		vx=v_x;
 		vy=v_y;
 		vz=v_z;
+		sideX=sdX;
+		sideY=sdY;
+	}
+
+	float getX(){ return vx ;}
+
+	float getY(){ return vy ;}
+
+	float getSideX(){
+		return sideX;
+	}
+
+	float getSideY(){
+		return sideY;
 	}
 
 	void setInitVertices( GLfloat vertex_buffer_data[]){
@@ -136,8 +182,8 @@ public:
 
 
 
-  		glm::mat4 translateRectangle = glm::translate (glm::vec3(this->vx,this->vy,this->vz));        // glTranslatef
- 	    glm::mat4 rotateRectangle = glm::rotate((float)(this->rectangle_rotation*M_PI/180.0f*-1), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  		glm::mat4 translateRectangle = glm::translate (glm::vec3(vx,vy,vz));        // glTranslatef
+ 	    glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f*-1), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
   		Matrices.model *= translateRectangle*((rotateRectangle ));
   		MVP = VP * Matrices.model;
   		glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
@@ -145,8 +191,8 @@ public:
   	}
 
 	void updateAngle(){
-		if(this->rectangle_rotation<=90)
-			this->rectangle_rotation+=1;
+		if(rectangle_rotation<=90)
+			rectangle_rotation+=1;
 	
 	}
 

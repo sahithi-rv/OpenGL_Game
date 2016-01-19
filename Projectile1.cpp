@@ -2,7 +2,7 @@
 //#include "utility.hpp"
 
 Projectile *projectile;
-Canon * canon, *base;
+Canon * canon, *base, *obstacle;
 //float rec_vel = 0;
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
@@ -84,6 +84,8 @@ void draw ()
   base->renderCanon();
   draw3DObject(base->rectangle);
   ****/
+  obstacle->renderCanon();
+  draw3DObject(obstacle->rectangle);
   //draw3DObject(canon->base);
   //camera_rotation_angle++; // Simulating camera rotation
   //projectile->rectangle_rotation = projectile->rectangle_rotation + increments*projectile->rectangle_rot_dir*projectile->rectangle_rot_status;
@@ -163,6 +165,18 @@ void initGL (GLFWwindow* window, int width, int height)
     0,0,0
   };
 
+  GLfloat obstacle_vertices[]={
+    0,0,0,
+    0,3,0,
+    0.5,3,0,
+
+    0.5,3,0,
+    0.5,0,0,
+    0,0,0
+  };
+
+
+
   /***GLfloat vertices[]={
     0,0,0,
     0,2.5,0,
@@ -204,6 +218,10 @@ void initGL (GLFWwindow* window, int width, int height)
   base->setInitColors(colors);
   base->createRectangle();
 	****/
+
+  obstacle->setInitVertices(obstacle_vertices);
+  obstacle->setInitColors(colors);
+  obstacle->createRectangle();
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
@@ -225,13 +243,33 @@ void initGL (GLFWwindow* window, int width, int height)
     cout << "GLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 }
 
+void onCollision(Projectile * granade, Canon * obstacle){
+  float vx = granade->getVX();
+  granade->setVX(-1*vx);
+  cout << " in " <<granade->getVX() << endl;
+}
+
+bool checkCollision(Projectile granade, Canon obstacle){
+  if( (obstacle.getX() <= granade.getX()+granade.getSideX() && granade.getX()+granade.getSideX() <= obstacle.getX() + obstacle.getSideX()) || (obstacle.getX() <= granade.getX() && granade.getX() <= obstacle.getX() + obstacle.getSideX()) )
+  {
+    if( (obstacle.getY() <= granade.getY()+granade.getSideY() && granade.getY()+granade.getSideY() <= obstacle.getY() + obstacle.getSideY()) || (obstacle.getY() <= granade.getY() && granade.getY() <= obstacle.getY() + obstacle.getSideY()) )    
+    {
+      cout << obstacle.getX() << " " << obstacle.getY() << " "<<  obstacle.getSideX() <<" " <<  obstacle.getSideY() << endl;
+      cout << "collided" << endl;
+      cout << granade.getX() << " " << granade.getY() << " "<<  granade.getSideX() <<" " <<  granade.getSideY() << endl;
+      //onCollision(granade,obstacle);
+      return true;
+    }
+  }
+}
+
 int main (int argc, char** argv)
 {
 	int width = 600;
 	int height = 600;
-    projectile = new Projectile(0,-1*VELOCITY,DISPLACEMENT*0.9,DISPLACEMENT,-4,-4);
-    canon = new Canon(0,-4,-3,0);
-    base = new Canon(0,-4,-5,0);
+    projectile = new Projectile(0,-1*VELOCITY,DISPLACEMENT*0.9,DISPLACEMENT,-4,-4,1,1);
+    //***canon = new Canon(0,-4,-3,0);
+    obstacle = new Canon(0,0,-3,0,0.5,3);
     GLFWwindow* window = initGLFW(width, height);
 
 	  initGL (window, width, height);
@@ -255,6 +293,10 @@ int main (int argc, char** argv)
         current_time = glfwGetTime(); // Time in seconds
         if ((current_time - last_update_time) >= 0.1) { // atleast 0.5s elapsed since last frame
             // do something every 0.5 seconds ..
+            if( checkCollision(*projectile,*obstacle) ){
+              onCollision(projectile,obstacle);
+              cout << projectile->getVX() << endl;
+            }
             projectile->updatePosition(current_time-start_time);
             //****canon->updateAngle();
             //base->updateAngle();

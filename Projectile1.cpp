@@ -2,8 +2,7 @@
 //#include "utility.hpp"
 
 Projectile *projectile;
-
-
+Canon * canon, *base;
 //float rec_vel = 0;
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
@@ -47,37 +46,6 @@ void mouseButton (GLFWwindow* window, int button, int action, int mods)
     }
 }
 
-// Creates the rectangle object used in this sample code
-void createRectangle ()
-{
-  int length=1,breadth=1;
-
-  // GL3 accepts only Triangles. Quads are not supported
-  int vx=-4,vy=-4,vz=0;
-  static const GLfloat vertex_buffer_data [] = {
-    vx,vy,vz, // vertex 1
-    vx,vy+breadth,vz, // vertex 2
-    vx+length, vy+breadth,vz, // vertex 3
-
-    vx+length,vy+breadth,vz, // vertex 3
-    vx+length,vy,vz, // vertex 4
-    vx,vy,vz  // vertex 1
-  };
-
-  static const GLfloat color_buffer_data [] = {
-    1,0,0, // color 1
-    0,0,1, // color 2
-    0,1,0, // color 3
-
-    0,1,0, // color 3
-    0.3,0.3,0.3, // color 4
-    1,0,0  // color 1
-  };
-
-  // create3DObject creates and returns a handle to a VAO that can be used later
-  projectile->rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
-}
-
 float camera_rotation_angle = 90;
 //float projectile->rectangle_rotation = 0;
 
@@ -109,7 +77,14 @@ void draw ()
 
   // Increment angles
  // float increments = 1;
-
+/****
+  canon->renderCanon();
+  
+  draw3DObject(canon->rectangle);
+  base->renderCanon();
+  draw3DObject(base->rectangle);
+  ****/
+  //draw3DObject(canon->base);
   //camera_rotation_angle++; // Simulating camera rotation
   //projectile->rectangle_rotation = projectile->rectangle_rotation + increments*projectile->rectangle_rot_dir*projectile->rectangle_rot_status;
 }
@@ -169,16 +144,45 @@ void initGL (GLFWwindow* window, int width, int height)
     /* Objects should be created before any other gl function and shaders */
 	// Create the models
 	//createTriangle (); // Generate the VAO, VBOs, vertices data & copy into the array buffer
-  GLfloat vertices[]={
+  /*GLfloat vertices[]={
     -4,-4,0,
-    -4,-3,0,
-    -3,-3,0,
+    -4,-2,0,
+    -3,-2,0,
 
-    -3,-3,0,
+    -3,-2,0,
     -3,-4,0,
     -4,-4,0
+  };*/
+  GLfloat vertices[]={
+    0,0,0,
+    0,1,0,
+    1,1,0,
+
+    1,1,0,
+    1,0,0,
+    0,0,0
   };
 
+  /***GLfloat vertices[]={
+    0,0,0,
+    0,2.5,0,
+    1,2.5,0,
+
+    1,2.5,0,
+    1,0,0,
+    0,0,0
+  };
+
+  GLfloat base_vertices[]={
+    0,0,0,
+    0,2,0,
+    2,2,0,
+
+    2,2,0,
+    2,0,0,
+    0,0,0
+  };
+***/
   GLfloat colors[]={
     1,1,1,
     1,1,1,
@@ -191,7 +195,15 @@ void initGL (GLFWwindow* window, int width, int height)
   projectile->setInitVertices(vertices);
   projectile->setInitColors(colors);
 	projectile->createRectangle ();
-	
+
+ /**** canon->setInitVertices(vertices);
+  canon->setInitColors(colors);
+  canon->createRectangle ();
+
+  base->setInitVertices(base_vertices);
+  base->setInitColors(colors);
+  base->createRectangle();
+	****/
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
@@ -217,7 +229,9 @@ int main (int argc, char** argv)
 {
 	int width = 600;
 	int height = 600;
-    projectile = new Projectile(0,-1*VELOCITY,DISPLACEMENT*0.9,DISPLACEMENT,0,0);
+    projectile = new Projectile(0,-1*VELOCITY,DISPLACEMENT*0.9,DISPLACEMENT,-4,-4);
+    canon = new Canon(0,-4,-3,0);
+    base = new Canon(0,-4,-5,0);
     GLFWwindow* window = initGLFW(width, height);
 
 	  initGL (window, width, height);
@@ -239,9 +253,11 @@ int main (int argc, char** argv)
 
         // Control based on time (Time based transformation like 5 degrees rotation every 0.5s)
         current_time = glfwGetTime(); // Time in seconds
-        if ((current_time - last_update_time) >= 0.05) { // atleast 0.5s elapsed since last frame
+        if ((current_time - last_update_time) >= 0.1) { // atleast 0.5s elapsed since last frame
             // do something every 0.5 seconds ..
             projectile->updatePosition(current_time-start_time);
+            //****canon->updateAngle();
+            //base->updateAngle();
             //rec_vel+=DISPLACEMENT+VELOCITY*(current_time-start_time);
             last_update_time = current_time;
         }

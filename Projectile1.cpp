@@ -263,7 +263,7 @@ void onCollision(Projectile * granade, Canon * obstacle){
   cout << " in " <<granade->getVX() << endl;
 }
 
-bool checkCollision(Projectile granade, Canon obstacle){
+/*bool checkCollision(Projectile granade, Canon obstacle){
   if( (obstacle.getX() <= granade.getX()+granade.getSideX() && granade.getX()+granade.getSideX() <= obstacle.getX() + obstacle.getSideX()) || (obstacle.getX() <= granade.getX() && granade.getX() <= obstacle.getX() + obstacle.getSideX()) )
   {
     if( (obstacle.getY() <= granade.getY()+granade.getSideY() && granade.getY()+granade.getSideY() <= obstacle.getY() + obstacle.getSideY()) || (obstacle.getY() <= granade.getY() && granade.getY() <= obstacle.getY() + obstacle.getSideY()) )    
@@ -275,6 +275,19 @@ bool checkCollision(Projectile granade, Canon obstacle){
       return true;
     }
   }
+}*/
+
+bool checkCollision(Projectile granade,Canon obstacle){
+  TR( obstacle.boundary_points, it){
+    output2(granade.getX(),granade.getY());
+    //output2((*it).F,(*it).S);
+    float dt = distance(granade.getX()+0.5,granade.getY()+0.5,(*it).F,(*it).S );
+    //output1(dt);
+    if( obstacle.boundary_radius + 0.5 >= dt ){
+      return true;
+    }
+  }
+  return false;
 }
 
 int main (int argc, char** argv)
@@ -283,7 +296,7 @@ int main (int argc, char** argv)
 	int height = 600;
   projectile = new Projectile(0,-1*VELOCITY,DISPLACEMENT*0.9,DISPLACEMENT,-4,-4,1,1);
     //***canon = new Canon(0,-4,-3,0);
-    obstacle = new Canon(0,0,-3,0,0.5,3);
+    obstacle = new Canon(0,0,-3,0,0.5,3,0.1);
    //*** obs = new Obstacle(360,0,0,0,0.2);
     GLFWwindow* window = initGLFW(width, height);
 
@@ -292,6 +305,15 @@ int main (int argc, char** argv)
     double last_update_time = glfwGetTime(), current_time;
     double start_time=last_update_time;
     // Draw in loop
+
+    obstacle->setBoundaryPoints(obstacle->getX(),obstacle->getY(),obstacle->getX(),obstacle->getY()+obstacle->getSideY());
+    //obstacle->setBoundaryPoints(0,3,0.5,3);
+    //obstacle->setBoundaryPoints(0.5,3,0.5,0);
+    //obstacle->setBoundaryPoints(0.5,0,0,0);
+
+    TR(obstacle->boundary_points,it){
+      output2( (*it).first,(*it).second );
+    }
     while (!glfwWindowShouldClose(window)) {
 
        

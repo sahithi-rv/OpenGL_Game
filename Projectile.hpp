@@ -122,14 +122,17 @@ public:
 	float rectangle_rotation;
 	float vx,vy,vz;
 	float sideX,sideY;
+	float boundary_radius;
+	vector<pair<float,float> > boundary_points;
 
-	Canon(float rot,float v_x,float v_y,float v_z,float sdX,float sdY){
+	Canon(float rot,float v_x,float v_y,float v_z,float sdX,float sdY,float rad){
 		rectangle_rotation=rot;
 		vx=v_x;
 		vy=v_y;
 		vz=v_z;
 		sideX=sdX;
 		sideY=sdY;
+		boundary_radius = rad;
 	}
 
 	float getX(){ return vx ;}
@@ -190,11 +193,29 @@ public:
 
   	}
 
+  	void setBoundaryPoints(float x1,float y1, float x2,float y2){
+
+  		float x,y;
+  		double angle = atan2( (y2-y1),(x2-x1) );
+  		float r = boundary_radius;
+  		float dt = distance(x1,y1,x2,y2);
+  		output1(dt);
+  		output1(angle);
+  		while (r <= dt){
+  			x = x1 + r * cos(angle);
+  			y = y1 + r * sin(angle);
+  			boundary_points.PB(MP(x,y));
+  			r += 2*boundary_radius;
+  		}
+  	}
+
 	void updateAngle(){
 		if(rectangle_rotation<=90)
 			rectangle_rotation+=1;
 	
 	}
+
+
 
 };
 

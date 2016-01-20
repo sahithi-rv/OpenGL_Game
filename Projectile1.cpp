@@ -3,6 +3,7 @@
 
 Projectile *projectile;
 Canon * canon, *base, *obstacle;
+Obstacle * obs;
 //float rec_vel = 0;
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
@@ -69,12 +70,14 @@ void draw ()
 
   // Send our transformation to the currently bound shader, in the "MVP" uniform
   // For each model you render, since the MVP will be different (at least the M part)
+  /***obs->renderObstacle();
+  draw3DObject(obs->circle);
+  ****/
   //  Don't change unless you are sure!!
   projectile->renderProjectile();
 
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(projectile->rectangle);
-
   // Increment angles
  // float increments = 1;
 /****
@@ -84,8 +87,10 @@ void draw ()
   base->renderCanon();
   draw3DObject(base->rectangle);
   ****/
+ 
   obstacle->renderCanon();
   draw3DObject(obstacle->rectangle);
+  
   //draw3DObject(canon->base);
   //camera_rotation_angle++; // Simulating camera rotation
   //projectile->rectangle_rotation = projectile->rectangle_rotation + increments*projectile->rectangle_rot_dir*projectile->rectangle_rot_status;
@@ -206,6 +211,14 @@ void initGL (GLFWwindow* window, int width, int height)
     1,1,1,
     1,1,1
   };
+/***
+  GLfloat * circle_vertices = circleVertices(obs->num_vertices, obs->radius);
+  GLfloat * circle_colors = circleColors(obs->num_vertices);
+
+  obs->setInitVertices(circle_vertices);
+  obs->setInitColors(circle_colors);
+  obs->createCircle();
+***/
   projectile->setInitVertices(vertices);
   projectile->setInitColors(colors);
 	projectile->createRectangle ();
@@ -222,6 +235,7 @@ void initGL (GLFWwindow* window, int width, int height)
   obstacle->setInitVertices(obstacle_vertices);
   obstacle->setInitColors(colors);
   obstacle->createRectangle();
+  
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
@@ -267,9 +281,10 @@ int main (int argc, char** argv)
 {
 	int width = 600;
 	int height = 600;
-    projectile = new Projectile(0,-1*VELOCITY,DISPLACEMENT*0.9,DISPLACEMENT,-4,-4,1,1);
+  projectile = new Projectile(0,-1*VELOCITY,DISPLACEMENT*0.9,DISPLACEMENT,-4,-4,1,1);
     //***canon = new Canon(0,-4,-3,0);
     obstacle = new Canon(0,0,-3,0,0.5,3);
+   //*** obs = new Obstacle(360,0,0,0,0.2);
     GLFWwindow* window = initGLFW(width, height);
 
 	  initGL (window, width, height);
@@ -298,6 +313,7 @@ int main (int argc, char** argv)
               cout << projectile->getVX() << endl;
             }
             projectile->updatePosition(current_time-start_time);
+            
             //****canon->updateAngle();
             //base->updateAngle();
             //rec_vel+=DISPLACEMENT+VELOCITY*(current_time-start_time);

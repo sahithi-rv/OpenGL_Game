@@ -198,4 +198,58 @@ public:
 
 };
 
+class Obstacle{
+
+public:
+	GLfloat* vertex_buffer;
+	GLfloat* color_buffer;
+	VAO * circle;
+	int num_vertices;
+	float cx,cy,cz,radius;
+	Obstacle(int num,float c_x,float c_y,float c_z,float r){
+		num_vertices = num;
+		radius = r;
+		cx = c_x;
+		cy = c_y;
+		cz = c_z;
+	}
+	void setInitVertices( GLfloat vertex_buffer_data[]){
+		vertex_buffer = new GLfloat[num_vertices];
+		vertex_buffer = vertex_buffer_data;
+	}
+
+	
+
+	void setInitColors( GLfloat color_buffer_data[]){
+		color_buffer== new GLfloat[num_vertices];
+		color_buffer=color_buffer_data;
+	}
+
+	void createCircle(){
+			
+		circle = create3DObject(GL_TRIANGLE_FAN,num_vertices,vertex_buffer,color_buffer,GL_FILL);
+	}
+
+	void renderObstacle(){
+		glm::mat4 MVP;	// MVP = Projection * View * Model
+		Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
+
+  		glm::mat4 VP = Matrices.projection * Matrices.view;
+  			/* Render your scene */
+
+  		Matrices.model = glm::mat4(1.0f);
+
+
+
+  		glm::mat4 translateCircle = glm::translate (glm::vec3(0,0,0));        // glTranslatef
+ 	   // glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f*-1), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  		Matrices.model *= translateCircle;//*((rotateRectangle ));
+  		MVP = VP * Matrices.model;
+  		glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  	}
+
+
+};
+
 #endif

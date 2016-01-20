@@ -206,6 +206,27 @@ struct VAO* create3DObject (GLenum primitive_mode, int numVertices, const GLfloa
     return create3DObject(primitive_mode, numVertices, vertex_buffer_data, color_buffer_data, fill_mode);
 }
 
+GLfloat * circleVertices(int numVertices, float radius){
+
+	GLfloat * vertex_buffer_data = new GLfloat[3*numVertices];
+	for (int i=0; i<numVertices ; i++){
+		vertex_buffer_data[3*i] = radius * cos(i*M_PI/180.0f);
+		vertex_buffer_data[3*i+1] = radius * sin(i*M_PI/180.0f);
+		vertex_buffer_data[3*i+2] = 0;
+	}
+	return vertex_buffer_data;
+}
+
+GLfloat * circleColors(int numVertices){
+	GLfloat * circle_colors = new GLfloat[3*numVertices];
+	for (int i=0; i<numVertices; i++) {
+        circle_colors[3*i] = 1;
+        circle_colors[3*i + 1] = 1;
+        circle_colors[3*i + 2] = 1;
+    }
+    return circle_colors;
+}
+
 /* Render the VBOs handled by VAO */
 void draw3DObject (struct VAO* vao)
 {

@@ -1,2 +1,2 @@
 # OpenGL_Game
-A Simple game similar to angry birds using opengl
+A Simple game(with projectiles ) using opengl

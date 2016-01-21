@@ -12,8 +12,10 @@
 
 #define DISPLACEMENT 0.5
 #define VELOCITY 0.15
-#define SCREEN_WIDTH 600
-#define SCREEN_HEIGHT 600
+#define CANON_STEP 0.2
+#define CANON_ROTATION 1
+#define SCREEN_WIDTH 1300
+#define SCREEN_HEIGHT 800
 #define GLM_FORCE_RADIANS
 #define PB push_back
 #define MP make_pair
@@ -279,3 +281,4 @@ void reshapeWindow (GLFWwindow* window, int width, int height)
     // Ortho projection for 2D views
     Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
 }
+

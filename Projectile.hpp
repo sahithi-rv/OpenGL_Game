@@ -110,7 +110,7 @@ class Projectile{
   		}
 };
 
-class Canon{
+class Quadrilateral{
 
 public:
 
@@ -125,7 +125,7 @@ public:
 	float boundary_radius;
 	vector<pair<float,float> > boundary_points;
 
-	Canon(float rot,float v_x,float v_y,float v_z,float sdX,float sdY,float rad){
+	Quadrilateral(float rot,float v_x,float v_y,float v_z,float sdX,float sdY,float rad){
 		rectangle_rotation=rot;
 		vx=v_x;
 		vy=v_y;
@@ -147,8 +147,60 @@ public:
 		return sideY;
 	}
 
-	void setInitVertices( GLfloat vertex_buffer_data[]){
+	float getAngle(){
+		return rectangle_rotation;
+	}
+
+	GLfloat * getInitVertices(){
+		output2(vx,vy);
+		output2(sideX,sideY);
+		/**GLfloat  vertex_buffer_data[] = {
+			0,0,0,
+			0,0+sideY,0,
+			0+sideX,0+sideY,0,
+
+			0+sideX,0+sideY,0,
+			0+sideX,0,0,
+			0,0,0
+		};**/
+		GLfloat * vertex_buffer_data = new GLfloat[100];
+		vertex_buffer_data[0]=0;
+		vertex_buffer_data[1]=0;
+		vertex_buffer_data[2]=0;
+		vertex_buffer_data[3]=0;
+		vertex_buffer_data[4]=0+sideY;
+		vertex_buffer_data[5]=0;
+		vertex_buffer_data[6]=0+sideX;
+		vertex_buffer_data[7]=0+sideY;
+		vertex_buffer_data[8]=0;
+		vertex_buffer_data[9]=0+sideX;
+		vertex_buffer_data[10]=0+sideY;
+		vertex_buffer_data[11]=0;
+		vertex_buffer_data[12]=0+sideX;
+		vertex_buffer_data[13]=0;
+		vertex_buffer_data[14]=0;
+		vertex_buffer_data[15]=0;
+		vertex_buffer_data[16]=0;
+		vertex_buffer_data[17]=0;		
 		vertex_buffer = new GLfloat[100];
+		return vertex_buffer = vertex_buffer_data;
+	}
+
+	void setInitVertices(GLfloat vertex_buffer_data[] ){
+		vertex_buffer_data[0]=0;
+
+
+		vertex_buffer_data[0]=0;
+
+
+		vertex_buffer_data[0]=0;
+
+
+		vertex_buffer_data[0]=0;
+
+
+		vertex_buffer_data[0]=0;
+		vertex_buffer_data[0]=0;		//vertex_buffer = new GLfloat[100];
 		vertex_buffer = vertex_buffer_data;
 	}
 
@@ -174,7 +226,7 @@ public:
 			//base = create3DObject(GL_TRIANGLES,6,base_vertex_buffer,color_buffer,GL_FILL);
 	}
 
-	void renderCanon(){
+	void renderQuad(){
 		glm::mat4 MVP;	// MVP = Projection * View * Model
 		Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
 
@@ -209,10 +261,17 @@ public:
   		}
   	}
 
-	void updateAngle(){
-		if(rectangle_rotation<=90)
-			rectangle_rotation+=1;
+	void updateAngle(float theta){
+		rectangle_rotation += theta;
+		if(rectangle_rotation>=90 || rectangle_rotation<=0)
+			rectangle_rotation -= theta;
 	
+	}
+
+	void updatePosition(float dx){
+		vx+=dx;
+		if(getX() < -4 || getX() > -2)
+			vx-=dx;
 	}
 
 

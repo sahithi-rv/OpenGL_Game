@@ -15,8 +15,10 @@ class Projectile{
 		float s_x;
 		float s_y;
 		float sideX,sideY;
+		double mass;
+		int fill;
 		VAO  *rectangle;
-		Projectile(float vx,float vy,float dx,float dy,float x,float y,float sdX,float sdY){
+		Projectile(float vx,float vy,float dx,float dy,float x,float y,float sdX,float sdY,double m,int filled){
 			gravity = vy;
 			ax=0;
 			v_x = dx;
@@ -25,18 +27,19 @@ class Projectile{
 			s_y=y;
 			sideX=sdX;
 			sideY=sdY;
-
+			mass = m;
+			
 		}
 
 
 
 		void setInitVertices( GLfloat vertex_buffer_data[]){
-			vertex_buffer== new GLfloat[100];
+			vertex_buffer= new GLfloat[100];
 			vertex_buffer=vertex_buffer_data;
 		}
 
 		void setInitColors( GLfloat color_buffer_data[]){
-			color_buffer== new GLfloat[100];
+			color_buffer=new GLfloat[100];
 			color_buffer=color_buffer_data;
 		}
 
@@ -52,7 +55,8 @@ class Projectile{
 			color_buffer_data  = color_buffer;
 
 			// create3DObject creates and returns a handle to a VAO that can be used later
-			rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+			
+
 		}
 
 		void renderProjectile(){
@@ -94,10 +98,10 @@ public:
 	float rectangle_rotation;
 	float vx,vy,vz;
 	float sideX,sideY;
-	float boundary_radius;
+	float boundary_radius,cor,force;
 	vector<pair<float,float> > boundary_points;
-
-	Quadrilateral(float rot,float v_x,float v_y,float v_z,float sdX,float sdY,float rad){
+	double mass;int fill;
+	Quadrilateral(float rot,float v_x,float v_y,float v_z,float sdX,float sdY,float rad,float COR,float NF,double m,int filled ){
 		rectangle_rotation=rot;
 		vx=v_x;
 		vy=v_y;
@@ -105,6 +109,10 @@ public:
 		sideX=sdX;
 		sideY=sdY;
 		boundary_radius = rad;
+		cor = COR;
+		force = NF;
+		mass = m;
+		fill = filled;
 	}
 
 	float getX(){ return vx ;}
@@ -123,9 +131,15 @@ public:
 		return rectangle_rotation;
 	}
 
+	float getNF(){
+		return force;
+	}
+	void setNF(float NF){
+		force = NF;
+	}
 	GLfloat * getInitVertices(){
-		output2(vx,vy);
-		output2(sideX,sideY);
+		//output2(vx,vy);
+		//output2(sideX,sideY);
 		/**GLfloat  vertex_buffer_data[] = {
 			0,0,0,
 			0,0+sideY,0,
@@ -157,29 +171,27 @@ public:
 		vertex_buffer = new GLfloat[100];
 		return vertex_buffer = vertex_buffer_data;
 	}
+	GLfloat * getInitColors(float r,float g,float b){
+		
+		GLfloat * color_buffer_data = new GLfloat[100];
+		for (int i=0; i<6; i++) {
+        	color_buffer_data [3*i] = r;
+        	color_buffer_data [3*i + 1] = g;
+        	color_buffer_data [3*i + 2] = b;
+   	    }
+		color_buffer = new GLfloat[100];
+		return color_buffer = color_buffer_data;
+	}
 
 	void setInitVertices(GLfloat vertex_buffer_data[] ){
-		vertex_buffer_data[0]=0;
-
-
-		vertex_buffer_data[0]=0;
-
-
-		vertex_buffer_data[0]=0;
-
-
-		vertex_buffer_data[0]=0;
-
-
-		vertex_buffer_data[0]=0;
-		vertex_buffer_data[0]=0;		//vertex_buffer = new GLfloat[100];
+		//vertex_buffer = new GLfloat[100];
 		vertex_buffer = vertex_buffer_data;
 	}
 
 	
 
 	void setInitColors( GLfloat color_buffer_data[]){
-		color_buffer== new GLfloat[100];
+		//color_buffer== new GLfloat[100];
 		color_buffer=color_buffer_data;
 	}
 
@@ -192,10 +204,10 @@ public:
 
 			GLfloat *color_buffer_data = new GLfloat[100];
 			color_buffer_data  = color_buffer;
-
-			// create3DObject creates and returns a handle to a VAO that can be used later
-			rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
-			//base = create3DObject(GL_TRIANGLES,6,base_vertex_buffer,color_buffer,GL_FILL);
+			//if(fill)
+				rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+			//else
+			//	rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_LINE);
 	}
 
 	void renderQuad(){
@@ -223,13 +235,12 @@ public:
   		double angle = atan2( (y2-y1),(x2-x1) );
   		float r = boundary_radius;
   		float dt = distance(x1,y1,x2,y2);
-  		output1(dt);
-  		output1(angle);
-  		while (r <= dt){
+  		
+  		while (r <= dt+0.2){
   			x = x1 + r * cos(angle);
   			y = y1 + r * sin(angle);
   			boundary_points.PB(MP(x,y));
-  			r += 2*boundary_radius;
+  			r += boundary_radius/16;
   		}
   	}
 
@@ -264,7 +275,8 @@ public:
 	float v_y;
 	float s_x;
 	float s_y;
-    Circle(int num,float vx,float vy,float dx,float dy,float c_x,float c_y,float c_z,float r){
+	float ext_force_x,ext_force_y;
+    Circle(int num,float vx,float vy,float dx,float dy,float c_x,float c_y,float c_z,float r,float EFX,float EFY){
 			gravity = vy;
 			ax=vx;
 			v_x = dx;
@@ -274,11 +286,20 @@ public:
 			cx = c_x;
 			cy = c_y;
 			cz = c_z;
+			ext_force_x= EFX;
+			ext_force_y = EFY;
 	}
 
 		float getX(){ return cx ;}
 
 		float getY(){ return cy ;}
+
+		void setX(float dx){
+			cx=dx;
+		}
+		void setY(float dy){
+			cy=dy;
+		}
 
 		float getRadius(){
 			return radius;
@@ -298,6 +319,21 @@ public:
 			v_y=dy;
 		}
 
+		float getEFX(){
+			return ext_force_x;
+		}
+
+		void setEFX(float EF){
+			ext_force_x = EF;
+		}
+
+		float getEFY(){
+			return ext_force_y;
+		}
+
+		void setEFY(float EFY){
+			ext_force_y = EFY;
+		}
 	void setInitVertices( GLfloat vertex_buffer_data[]){
 		vertex_buffer = new GLfloat[num_vertices];
 		vertex_buffer = vertex_buffer_data;

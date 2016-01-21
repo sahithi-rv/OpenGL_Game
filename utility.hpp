@@ -10,7 +10,7 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define DISPLACEMENT 0.5
+#define DISPLACEMENT 0.1
 #define VELOCITY 0.15
 #define CANON_STEP 0.2
 #define CANON_ROTATION 1
@@ -42,6 +42,7 @@
 
 typedef long long int  ll;
 
+int speed_level;
 using namespace std;
 
 struct VAO {

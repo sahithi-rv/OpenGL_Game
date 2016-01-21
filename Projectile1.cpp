@@ -2,7 +2,7 @@
 //#include "utility.hpp"
 
 Circle *projectile;
-Quadrilateral * canon, *base, *obstacle;
+Quadrilateral * canon, *base, *obstacle1, *bar[15];
 
 Quadrilateral * boundary_bottom, *boundary_top, *boundary_left, *boundary_right;
 bool motion_phase_projectile = false, motion_phase_start_projectile = false;
@@ -31,6 +31,15 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
                 break;
             case GLFW_KEY_S:
                 canon->updateAngle(CANON_ROTATION);
+                break;
+            case GLFW_KEY_UP:
+                if(speed_level<10)
+                  speed_level++;
+                break;
+
+            case GLFW_KEY_DOWN:
+                if(speed_level>0)
+                  speed_level--;
                 break;
 
       }
@@ -110,13 +119,22 @@ void draw ()
   
   boundary_bottom->renderQuad();
   draw3DObject(boundary_bottom->rectangle);
-  boundary_left->renderQuad();
+ /* boundary_left->renderQuad();
   draw3DObject(boundary_left->rectangle);
   boundary_top->renderQuad();
   draw3DObject(boundary_top->rectangle);
-  
+  */
   boundary_right->renderQuad();
   draw3DObject(boundary_right->rectangle);
+  
+  obstacle1->renderQuad();
+  draw3DObject(obstacle1->rectangle);
+
+      for(int i=0;i<=speed_level;i++){
+        
+          bar[i]->renderQuad();
+          draw3DObject(bar[i]->rectangle);
+        }
   
   /****
  
@@ -177,19 +195,11 @@ GLFWwindow* initGLFW (int width, int height)
     return window;
 }
 
-void setInitials(Quadrilateral *box){
-   GLfloat colors[]={
-    1,1,1,
-    1,1,1,
-    1,1,1,
-    
-    1,1,1,
-    1,1,1,
-    1,1,1
-  };
+void setInitials(Quadrilateral *box,float r,float g,float b){
+
   GLfloat * vertex_buffer_data;
   vertex_buffer_data = box->getInitVertices();
-
+  GLfloat * colors = box->getInitColors(r,g,b);
   box->setInitVertices(vertex_buffer_data);
   box->setInitColors(colors);
   box->createRectangle ();
@@ -199,18 +209,6 @@ void setInitials(Quadrilateral *box){
 /* Add all the models to be created here */
 void initGL (GLFWwindow* window, int width, int height)
 {
-    /* Objects should be created before any other gl function and shaders */
-	// Create the models
-	//createTriangle (); // Generate the VAO, VBOs, vertices data & copy into the array buffer
-  /*GLfloat vertices[]={
-    -4,-4,0,
-    -4,-2,0,
-    -3,-2,0,
-
-    -3,-2,0,
-    -3,-4,0,
-    -4,-4,0
-  };*/
   GLfloat vertices[]={
     0,0,0,
     0,1,0,
@@ -231,59 +229,18 @@ void initGL (GLFWwindow* window, int width, int height)
     0,0,0
   };
 
-
-
-  /***GLfloat vertices[]={
-    0,0,0,
-    0,2.5,0,
-    1,2.5,0,
-
-    1,2.5,0,
-    1,0,0,
-    0,0,0
-  };
-
-  GLfloat base_vertices[]={
-    0,0,0,
-    0,2,0,
-    2,2,0,
-
-    2,2,0,
-    2,0,0,
-    0,0,0
-  };
-***/
+  setInitials(canon,1,1,1);
+  setInitials(base,1,1,1);
+  
+  setInitials(boundary_bottom,1,1,1);
+  //setInitials(boundary_top);
+  //setInitials(boundary_left);
+  setInitials(boundary_right,1,1,1);
+  setInitials(obstacle1,1,1,1);
+ for(int i=0;i<=10;i++){
+      setInitials(bar[i],float(i)/10,1-float(i)/10,0);
+    }
  
-
-  /****
-  projectile->setInitVertices(vertices);
-  projectile->setInitColors(colors);
-	projectile->createRectangle ();
-****/
-  /*GLfloat vertex_buffer_data[] = {
-      0,0,0,
-      0,0+canon->sideY,0,
-      0+canon->sideX,0+canon->sideY,0,
-
-      0+canon->sideX,0+canon->sideY,0,
-      0+canon->sideX,0,0,
-      0,0,0
-    };*/
-  /*    
-
-  vertex_buffer_data = base->getInitVertices();
-  base->setInitVertices(vertex_buffer_data);
-  base->setInitColors(colors);
-  base->createRectangle();
-	*/
-  setInitials(canon);
-  setInitials(base);
-  
-  setInitials(boundary_bottom);
-  setInitials(boundary_top);
-  setInitials(boundary_left);
-  setInitials(boundary_right);
-  
 /****
   obstacle->setInitVertices(obstacle_vertices);
   obstacle->setInitColors(colors);
@@ -309,25 +266,51 @@ void initGL (GLFWwindow* window, int width, int height)
     cout << "VERSION: " << glGetString(GL_VERSION) << endl;
     cout << "GLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 }
-/*
-void onCollision(Projectile * granade,Quadrilateral * obstacle){
-  float vx = granade->getVX();
-  granade->setVX(-1*vx);
-  cout << " in " <<granade->getVX() << endl;
+//no need of centre
+void onCollision(Circle * granade,Quadrilateral * obstacle,pair<float,float> centre,float rad){
+  float x1 = granade->getX() , y1 = granade->getY();
+  float vx = granade->getVX() , vy = granade->getVY();
+  double theta = atan2(vy,vx);
+  float displace = 1.5*granade->getRadius();
+  output2(granade->getX(),granade->getY());
+
+  if(vx>=0)
+    granade->setX(x1-displace);
+  else
+    granade->setX(x1+displace);
+  if(vy>=0)
+    granade->setY(y1-displace);
+  else
+    granade->setY(y1+displace);
+  output2(granade->getX(),granade->getY());
+  theta += M_PI;
+ // output2(x1,y1);
+  //output2(vx,vy);
+  //output1(theta);
+  double v = sqrt(vx*vx + vy*vy );
+  //output1(v);
+  double finalv = obstacle->cor * v;
+  // output1(finalv);
+  granade->setVX(finalv*cos(theta));
+  granade->setVY(finalv*sin(theta));
+  //output2(finalv*cos(theta),finalv*sin(theta));
+  //cout << " in " <<granade->getVY() << endl;
 }
 
-bool checkCollision(Projectile granade,Quadrilateral obstacle){
+bool checkCollision(Circle granade,Quadrilateral obstacle,pair<float,float> * centre,float * bound_rad){
   TR( obstacle.boundary_points, it){
     //output2((*it).F,(*it).S);
-    float dt = distance(granade.getX()+0.5,granade.getY()+0.5,(*it).F,(*it).S );
+    float dt = distance(granade.getX(),granade.getY(),(*it).F,(*it).S );
     //output1(dt);
-    if( obstacle.boundary_radius + 0.5 >= dt ){
+    if( obstacle.boundary_radius + granade.getRadius() >= dt ){
+      *centre = MP((*it).F,(*it).S );
+      *bound_rad = obstacle.boundary_radius;
       return true;
     }
   }
   return false;
 }
-*/
+
 void setBoundaries(Quadrilateral *obstacle){
     obstacle->setBoundaryPoints(obstacle->getX(),obstacle->getY(),obstacle->getX(),obstacle->getY()+obstacle->getSideY());
     obstacle->setBoundaryPoints(obstacle->getX(),obstacle->getY()+obstacle->getSideY(),obstacle->getX()+obstacle->getSideX(),obstacle->getY()+obstacle->getSideY());
@@ -340,15 +323,13 @@ pair<float,float> getProjectileInitPosition(Quadrilateral canon){
   double theta = canon.getAngle()*M_PI/180;
   float x1 = canon.getX() , y1 = canon.getY();
   float rx= canon.getSideX() , ry = canon.getSideY();
-  output1(theta);
-  output2(x1,y1);
-  output2(rx,ry);
+  
   float y = y1 + ry*cos(theta);
   float x = x1 + ry*sin(theta);
   y = y + rx/2*cos(M_PI/2 - theta);
-  output1(sin(M_PI/2 - theta));
+  //output1(sin(M_PI/2 - theta));
   x = x + rx/2*sin(M_PI/2 - theta);
-  output2(x,y);
+  //output2(x,y);
   return MP(x,y);
 }
 
@@ -356,27 +337,32 @@ int main (int argc, char** argv)
 {
 	 int width = SCREEN_WIDTH;
 	 int height = SCREEN_HEIGHT;
+   int projectile_collision_count;
+
+   speed_level=0;
     //**** 
-    canon = new Quadrilateral(0,-4,-3,0,0.5,3,0.1);
-    base = new Quadrilateral(0,-4,-4,0,2.5,1,0.1);
+    canon = new Quadrilateral(0,-4,-3,0,0.5,3,0.1,0.2,0,10000,1);
+    base = new Quadrilateral(0,-4,-4,0,2.5,1,0.1,0.2,0,10000,1);
 
-    boundary_bottom = new Quadrilateral(0,-4,-4,0,8,0.2,0.1);
-    boundary_top = new Quadrilateral(0,-4,3.8,0,8,0.2,0.1);
-    boundary_left = new Quadrilateral(0,3.8,-4,0,0.2,8,0.1);
-    boundary_right = new Quadrilateral(0,-4.1,-4,0,0.2,8,0.1);
-
-
-   /*** obstacle = new Canon(0,0,-3,0,0.5,3,0.1);
-    obs = new Obstacle(360,0,0,0,0.2);
-   ***/
+    boundary_bottom = new Quadrilateral(0,-4,-4,0,8,0.2,0.1,0.9,0,10000,1);
+   // boundary_top = new Quadrilateral(0,-4,3.8,0,8,0.2,0.1);
+    //boundary_left = new Quadrilateral(0,3.8,-4,0,0.2,8,0.1);
+    boundary_right = new Quadrilateral(0,-4.1,-4,0,0.2,8,0.1,0.2,0,10000,1);
+    obstacle1 = new Quadrilateral(0,0,-3,0,0.5,3,0.1,0.3,0,10000,1);
+    //bar = new Quadrilateral(0,-3.5,3.25,0,2,0.5,0,1,0,0,0);
+    for(int i=0;i<=10;i++){
+      bar[i] = new Quadrilateral(0,-3.5+float(i)/8,3.25,0,0.125,0.5,0,1,0,0,0);
+      
+    }
+    setBoundaries(obstacle1);
     GLFWwindow* window = initGLFW(width, height);
 
 	  initGL (window, width, height);
-
+   
     double last_update_time = glfwGetTime(), current_time;
     double start_time=last_update_time;
     // Draw in loop
-    
+    pair <float,float> centre;float rad;
     while (!glfwWindowShouldClose(window)) {
 
        
@@ -388,12 +374,14 @@ int main (int argc, char** argv)
 
         // Poll for Keyboard and mouse events
         glfwPollEvents();
+        
         if(motion_phase_start_projectile){
           pair<float,float> dis;
           
           motion_phase_projectile = true;
           dis=getProjectileInitPosition(*canon);
-          projectile = new Circle(360,0,-1*VELOCITY,DISPLACEMENT*0.9,DISPLACEMENT,dis.F,dis.S,0,0.25);
+          float displace = DISPLACEMENT + (float)speed_level/10;
+          projectile = new Circle(360,0,-1*VELOCITY,displace*0.7,displace,dis.F,dis.S,0,0.25,0,0);
           GLfloat * circle_vertices = circleVertices(projectile->num_vertices, projectile->radius);
           GLfloat * circle_colors = circleColors(projectile->num_vertices);
 
@@ -403,19 +391,42 @@ int main (int argc, char** argv)
 
           
           motion_phase_start_projectile = false;
+         projectile_collision_count=0;
 
         }
 
+        
+
         // Control based on time (Time based transformation like 5 degrees rotation every 0.5s)
         current_time = glfwGetTime(); // Time in seconds
-        if ((current_time - last_update_time) >= 0.1) { // atleast 0.5s elapsed since last frame
+        if ((current_time - last_update_time) >= 0.05) { // atleast 0.5s elapsed since last frame
             // do something every 0.5 seconds ..
-          /***
-            if( checkCollision(*projectile,*obstacle) ){
-              onCollision(projectile,obstacle);
-              cout << projectile->getVX() << endl;
+
+
+          if(motion_phase_projectile && checkCollision(*projectile,*obstacle1,&centre,&rad)){
+            onCollision(projectile,obstacle1,centre,rad);
+          }
+            /*
+            if( checkCollision(*projectile,*boundary_right) ){
+              onCollision(projectile,boundary_right);
+              cout << projectile->getVY() << endl;
             }
-            ***/
+           */ 
+           // if(motion_phase_projectile && checkCollision(*projectile,*boundary_bottom,&centre,&rad) ){
+             // projectile_collision_count++;
+
+              //onCollision(projectile,boundary_bottom,centre,rad);
+             
+              /*if(projectile_collision_count>=2){
+                projectile->setY(0);
+                projectile_collision_count=0;
+              }*/
+              
+              //cout << projectile->getVY() << endl;
+   
+
+            
+
             if(motion_phase_projectile){
 
               projectile->updatePosition(current_time-motion_start_time);

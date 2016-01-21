@@ -28,31 +28,7 @@ class Projectile{
 
 		}
 
-		float getX(){ return s_x ;}
 
-		float getY(){ return s_y ;}
-
-		float getSideX(){
-			return sideX;
-		}
-
-		float getSideY(){
-			return sideY;
-		}
-
-		float getVX(){
-			return v_x;
-		}
-		float getVY(){
-			return v_y;
-		}
-
-		void setVX(float dx){
-			v_x=dx;
-		}
-		void setVY(float dy){
-			v_y=dy;
-		}
 
 		void setInitVertices( GLfloat vertex_buffer_data[]){
 			vertex_buffer== new GLfloat[100];
@@ -103,11 +79,7 @@ class Projectile{
   			glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
   		}
 
-  		void updatePosition(double time){
-  			s_x+=v_x + ax*time;
-  			s_y+= v_y + gravity*time;
-  			v_y+=gravity*time;
-  		}
+  		
 };
 
 class Quadrilateral{
@@ -278,7 +250,7 @@ public:
 
 };
 
-class Obstacle{
+class Circle{
 
 public:
 	GLfloat* vertex_buffer;
@@ -286,13 +258,46 @@ public:
 	VAO * circle;
 	int num_vertices;
 	float cx,cy,cz,radius;
-	Obstacle(int num,float c_x,float c_y,float c_z,float r){
-		num_vertices = num;
-		radius = r;
-		cx = c_x;
-		cy = c_y;
-		cz = c_z;
+	float gravity ;
+	float ax;
+	float v_x;
+	float v_y;
+	float s_x;
+	float s_y;
+    Circle(int num,float vx,float vy,float dx,float dy,float c_x,float c_y,float c_z,float r){
+			gravity = vy;
+			ax=vx;
+			v_x = dx;
+			v_y = dy;
+			num_vertices = num;
+			radius = r;
+			cx = c_x;
+			cy = c_y;
+			cz = c_z;
 	}
+
+		float getX(){ return cx ;}
+
+		float getY(){ return cy ;}
+
+		float getRadius(){
+			return radius;
+		}
+
+		float getVX(){
+			return v_x;
+		}
+		float getVY(){
+			return v_y;
+		}
+
+		void setVX(float dx){
+			v_x=dx;
+		}
+		void setVY(float dy){
+			v_y=dy;
+		}
+
 	void setInitVertices( GLfloat vertex_buffer_data[]){
 		vertex_buffer = new GLfloat[num_vertices];
 		vertex_buffer = vertex_buffer_data;
@@ -310,7 +315,7 @@ public:
 		circle = create3DObject(GL_TRIANGLE_FAN,num_vertices,vertex_buffer,color_buffer,GL_FILL);
 	}
 
-	void renderObstacle(){
+	void renderCircle(){
 		glm::mat4 MVP;	// MVP = Projection * View * Model
 		Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
 
@@ -321,12 +326,19 @@ public:
 
 
 
-  		glm::mat4 translateCircle = glm::translate (glm::vec3(0,0,0));        // glTranslatef
+  		
+  		glm::mat4 translateCircle = glm::translate (glm::vec3(cx,cy,cz));        // glTranslatef
  	   // glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f*-1), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
   		Matrices.model *= translateCircle;//*((rotateRectangle ));
   		MVP = VP * Matrices.model;
   		glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
+  	}
+
+  	void updatePosition(double time){
+  			cx+=v_x + ax*time;
+  			cy+= v_y + gravity*time;
+  			v_y+=gravity*time;
   	}
 
 

@@ -10,6 +10,8 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define STATIC_OBSTACLES 5
+#define MEW 0.5
 #define DISPLACEMENT 0.1
 #define VELOCITY 0.15
 #define CANON_STEP 0.2
@@ -220,12 +222,12 @@ GLfloat * circleVertices(int numVertices, float radius){
 	return vertex_buffer_data;
 }
 
-GLfloat * circleColors(int numVertices){
+GLfloat * circleColors(int numVertices,float r,float g,float b){
 	GLfloat * circle_colors = new GLfloat[3*numVertices];
 	for (int i=0; i<numVertices; i++) {
-        circle_colors[3*i] = 1;
-        circle_colors[3*i + 1] = 1;
-        circle_colors[3*i + 2] = 1;
+        circle_colors[3*i] = r;
+        circle_colors[3*i + 1] = g;
+        circle_colors[3*i + 2] = b;
     }
     return circle_colors;
 }

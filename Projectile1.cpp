@@ -1,12 +1,13 @@
 #include "Projectile.hpp"
 //#include "utility.hpp"
 
-Circle *projectile;
-Quadrilateral * canon, *base, *obstacle1, *bar[15];
+Circle *projectile,*hinge;
+Quadrilateral * canon, *base, *obstacles[15], *bar[15], *tar;
 
 Quadrilateral * boundary_bottom, *boundary_top, *boundary_left, *boundary_right;
 bool motion_phase_projectile = false, motion_phase_start_projectile = false;
 double motion_start_time;
+double projectile_init_vx,projectile_init_vy;
 //float rec_vel = 0;
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
@@ -27,10 +28,10 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
                 canon->updatePosition(-1*CANON_STEP);
                 break;
             case GLFW_KEY_W:
-                canon->updateAngle(-1*CANON_ROTATION);
+                canon->updateAngle(-1*CANON_ROTATION,0,90);
                 break;
             case GLFW_KEY_S:
-                canon->updateAngle(CANON_ROTATION);
+                canon->updateAngle(CANON_ROTATION,0,90);
                 break;
             case GLFW_KEY_UP:
                 if(speed_level<10)
@@ -117,6 +118,9 @@ void draw ()
   base->renderQuad();
   draw3DObject(base->rectangle);
   
+  tar->renderQuad();
+  draw3DObject(tar->rectangle);
+
   boundary_bottom->renderQuad();
   draw3DObject(boundary_bottom->rectangle);
  /* boundary_left->renderQuad();
@@ -126,15 +130,24 @@ void draw ()
   */
   boundary_right->renderQuad();
   draw3DObject(boundary_right->rectangle);
-  
-  obstacle1->renderQuad();
-  draw3DObject(obstacle1->rectangle);
 
-      for(int i=0;i<=speed_level;i++){
+  
+  //obstacle1->renderQuad();
+  //draw3DObject(obstacle1->rectangle);
+
+  for(int i=0;i<=speed_level;i++){
         
-          bar[i]->renderQuad();
-          draw3DObject(bar[i]->rectangle);
-        }
+      bar[i]->renderQuad();
+      draw3DObject(bar[i]->rectangle);
+  }
+
+  for(int i=0;i<STATIC_OBSTACLES;i++){
+    obstacles[i]->renderQuad();
+    draw3DObject(obstacles[i]->rectangle);
+  }
+
+  hinge->renderCircle();
+  draw3DObject(hinge->circle);
   
   /****
  
@@ -205,6 +218,8 @@ void setInitials(Quadrilateral *box,float r,float g,float b){
   box->createRectangle ();
 }
 
+
+
 /* Initialize the OpenGL rendering properties */
 /* Add all the models to be created here */
 void initGL (GLFWwindow* window, int width, int height)
@@ -229,17 +244,29 @@ void initGL (GLFWwindow* window, int width, int height)
     0,0,0
   };
 
-  setInitials(canon,1,1,1);
-  setInitials(base,1,1,1);
+  setInitials(canon,0.870588, 0.721569, 0.529412);
+  setInitials(base,0.372549, 0.619608, 0.627451);
   
   setInitials(boundary_bottom,1,1,1);
   //setInitials(boundary_top);
   //setInitials(boundary_left);
   setInitials(boundary_right,1,1,1);
-  setInitials(obstacle1,1,1,1);
- for(int i=0;i<=10;i++){
+
+  setInitials(tar,0.8,0.1,0);
+
+  GLfloat * hinge_vertices = circleVertices(hinge->num_vertices, hinge->radius);
+  GLfloat * hinge_colors = circleColors(hinge->num_vertices,0.662745, 0.662745, 0.662745);
+
+  hinge->setInitVertices(hinge_vertices);
+  hinge->setInitColors(hinge_colors);
+  hinge->createCircle();
+  for(int i=0;i<STATIC_OBSTACLES;i++){
+   setInitials(obstacles[i],0.823529, 0.411765, 0.117647);
+  }
+ // setInitials(obstacle1,1,1,1);
+  for(int i=0;i<=10;i++){
       setInitials(bar[i],float(i)/10,1-float(i)/10,0);
-    }
+  }
  
 /****
   obstacle->setInitVertices(obstacle_vertices);
@@ -271,9 +298,8 @@ void onCollision(Circle * granade,Quadrilateral * obstacle,pair<float,float> cen
   float x1 = granade->getX() , y1 = granade->getY();
   float vx = granade->getVX() , vy = granade->getVY();
   double theta = atan2(vy,vx);
-  float displace = 1.5*granade->getRadius();
-  output2(granade->getX(),granade->getY());
-
+  float displace = obstacle->boundary_radius + granade->getRadius();
+  //output2(granade->getX(),granade->getY());
   if(vx>=0)
     granade->setX(x1-displace);
   else
@@ -282,7 +308,33 @@ void onCollision(Circle * granade,Quadrilateral * obstacle,pair<float,float> cen
     granade->setY(y1-displace);
   else
     granade->setY(y1+displace);
-  output2(granade->getX(),granade->getY());
+  if(abs(x1-(obstacle->getX()))<=0.5 && abs(y1-(obstacle->getY()))<=0.5){
+    if((vx>0 && vy>0)){
+      granade->setX(x1-displace);
+      granade->setY(y1-displace);
+    }
+  }
+  else if(abs(x1-(obstacle->getX()))<=0.5 && abs(y1-(obstacle->getY()+obstacle->getSideY()))<=0.5){
+     if((vx>0 && vy<0)){
+      granade->setX(x1-displace);
+      granade->setY(y1+displace);
+    }
+  }
+  else if(abs(x1-(obstacle->getX()+obstacle->getSideX()))<=0.5 && abs(y1-(obstacle->getY()+obstacle->getSideY()))<=0.5){
+   if((vx<0 && vy<0)){
+      granade->setX(x1+displace);
+      granade->setY(y1+displace);
+    }
+  }
+  else if(abs(x1-(obstacle->getX()+obstacle->getSideX()))<=0.5 && abs(y1-(obstacle->getY()))<=0.5){
+     if(!(vx<0 && vy>0)){
+      granade->setX(x1+displace);
+      granade->setY(y1-displace);
+    }
+  }
+
+  
+ // output2(granade->getX(),granade->getY());
   theta += M_PI;
  // output2(x1,y1);
   //output2(vx,vy);
@@ -319,7 +371,7 @@ void setBoundaries(Quadrilateral *obstacle){
 
 }
 
-pair<float,float> getProjectileInitPosition(Quadrilateral canon){
+pair<pair<float,float>,pair<float,float> > getProjectileInitPosition(Quadrilateral canon){
   double theta = canon.getAngle()*M_PI/180;
   float x1 = canon.getX() , y1 = canon.getY();
   float rx= canon.getSideX() , ry = canon.getSideY();
@@ -330,39 +382,52 @@ pair<float,float> getProjectileInitPosition(Quadrilateral canon){
   //output1(sin(M_PI/2 - theta));
   x = x + rx/2*sin(M_PI/2 - theta);
   //output2(x,y);
-  return MP(x,y);
+  return MP(MP(x,y),MP(cos(M_PI/2 - theta),sin(M_PI/2 - theta)));
 }
 
 int main (int argc, char** argv)
 {
+  int theta=1.5;
 	 int width = SCREEN_WIDTH;
 	 int height = SCREEN_HEIGHT;
-   int projectile_collision_count;
-
+   int projectile_collision_count,flag=0;
+   float collide_vel;
    speed_level=0;
     //**** 
-    canon = new Quadrilateral(0,-4,-3,0,0.5,3,0.1,0.2,0,10000,1);
-    base = new Quadrilateral(0,-4,-4,0,2.5,1,0.1,0.2,0,10000,1);
+    canon = new Quadrilateral(0,-3.5,-3,0,0.5,3,0,0.05,0.2,0,10000,1);
+    base = new Quadrilateral(0,-3.5,-4,0,2.5,1,0,0.05,0.2,0,10000,1);
 
-    boundary_bottom = new Quadrilateral(0,-4,-4,0,8,0.2,0.1,0.9,0,10000,1);
+    boundary_bottom = new Quadrilateral(0,-4,-4,0,8,0.2,0,0.05,0.9,0,10000,1);
    // boundary_top = new Quadrilateral(0,-4,3.8,0,8,0.2,0.1);
     //boundary_left = new Quadrilateral(0,3.8,-4,0,0.2,8,0.1);
-    boundary_right = new Quadrilateral(0,-4.1,-4,0,0.2,8,0.1,0.2,0,10000,1);
-    obstacle1 = new Quadrilateral(0,0,-3,0,0.5,3,0.1,0.3,0,10000,1);
+    boundary_right = new Quadrilateral(0,-4.1,-4,0,0.2,8,0,0.05,0.2,0,10000,1);
+    tar = new Quadrilateral(0,2.8,-2,0,0.8,0.2,0,0.05,0.2,0,10000,1);
+    /*****/
+    obstacles[0] = new Quadrilateral(0,1.3,3.5,0,1.7,0.5,0,0.05,0.3,0,10000,1);
+    obstacles[1] = new Quadrilateral(330,3.7,2.2,0,0.4,2,0,0.05,0.3,0,10000,1);
+    obstacles[2] = new Quadrilateral(0,3.7,-1.5,0,0.3,4,0,0.05,0.3,0,10000,1);
+    obstacles[3] = new Quadrilateral(0,2.3,-1.5,0,0.3,3.3,0,0.05,0.3,0,10000,1);
+    obstacles[4] = new Quadrilateral(0,1.5,3.8,0,0.3,-1.8,0,0.05,0.3,0,10000,1);
+
+    hinge = new Circle(360,0,0,0,0,1.65,3.8,0,0.05,0,0);
+    //obstacles[1] = new Quadrilateral()
+    /*****/
+    //obstacle1 = new Quadrilateral(0,0,-3,0,0.5,3,0,0.1,0.3,0,10000,1);
     //bar = new Quadrilateral(0,-3.5,3.25,0,2,0.5,0,1,0,0,0);
     for(int i=0;i<=10;i++){
-      bar[i] = new Quadrilateral(0,-3.5+float(i)/8,3.25,0,0.125,0.5,0,1,0,0,0);
-      
+      bar[i] = new Quadrilateral(0,-3.5+float(i)/8,3.25,0,0.125,0.5,0,0,1,0,0,1); 
     }
-    setBoundaries(obstacle1);
     GLFWwindow* window = initGLFW(width, height);
-
 	  initGL (window, width, height);
-   
     double last_update_time = glfwGetTime(), current_time;
     double start_time=last_update_time;
     // Draw in loop
     pair <float,float> centre;float rad;
+
+    boundary_right->setBoundaryPoints(boundary_right->getX()+boundary_right->getSideX(),boundary_right->getY()+boundary_right->getSideY(),boundary_right->getX()+boundary_right->getSideX(),boundary_right->getY());
+    for(int i=0;i<STATIC_OBSTACLES-1;i++){
+     setBoundaries(obstacles[i]);
+    }
     while (!glfwWindowShouldClose(window)) {
 
        
@@ -376,14 +441,14 @@ int main (int argc, char** argv)
         glfwPollEvents();
         
         if(motion_phase_start_projectile){
-          pair<float,float> dis;
+          pair<pair<float,float>,pair<float,float> > dis;
           
           motion_phase_projectile = true;
           dis=getProjectileInitPosition(*canon);
           float displace = DISPLACEMENT + (float)speed_level/10;
-          projectile = new Circle(360,0,-1*VELOCITY,displace*0.7,displace,dis.F,dis.S,0,0.25,0,0);
+          projectile = new Circle(360,0,-1*VELOCITY,displace*dis.S.F,displace*dis.S.S,dis.F.F,dis.F.S,0,0.25,0,0);
           GLfloat * circle_vertices = circleVertices(projectile->num_vertices, projectile->radius);
-          GLfloat * circle_colors = circleColors(projectile->num_vertices);
+          GLfloat * circle_colors = circleColors(projectile->num_vertices,1, 0.498039, 0.313725);
 
           projectile->setInitVertices(circle_vertices);
           projectile->setInitColors(circle_colors);
@@ -402,36 +467,45 @@ int main (int argc, char** argv)
         if ((current_time - last_update_time) >= 0.05) { // atleast 0.5s elapsed since last frame
             // do something every 0.5 seconds ..
 
-
-          if(motion_phase_projectile && checkCollision(*projectile,*obstacle1,&centre,&rad)){
-            onCollision(projectile,obstacle1,centre,rad);
-          }
-            /*
-            if( checkCollision(*projectile,*boundary_right) ){
-              onCollision(projectile,boundary_right);
-              cout << projectile->getVY() << endl;
-            }
-           */ 
-           // if(motion_phase_projectile && checkCollision(*projectile,*boundary_bottom,&centre,&rad) ){
-             // projectile_collision_count++;
-
-              //onCollision(projectile,boundary_bottom,centre,rad);
-             
-              /*if(projectile_collision_count>=2){
-                projectile->setY(0);
-                projectile_collision_count=0;
-              }*/
+          if(motion_phase_projectile ){
+            if(projectile->getY()<=-3.5){
               
-              //cout << projectile->getVY() << endl;
-   
+              float ax= MEW*VELOCITY;
+              if(!flag){
+                collide_vel=projectile->getVX();
+              if(collide_vel>0)
+                projectile->setAX(-1*ax);
+              else if(collide_vel<0)
+                projectile->setAX(ax);
+                flag=1;
+              }
+              if(collide_vel*projectile->getVX()<=0){
+                projectile->setAX(0);
+                projectile->setVX(0);
+              }
+              projectile->setY(-3.6);
+              projectile->setVY(0);
+              projectile->setAY(0);
+             // output2(projectile->getAX(),projectile->getVX());
+            }
+          }
 
+          setBoundaries(obstacles[4]);
+          if(motion_phase_projectile && checkCollision(*projectile,*boundary_right,&centre,&rad)){
+            onCollision(projectile,boundary_right,centre,rad);
+          }
             
-
+            for(int i=0;i<STATIC_OBSTACLES;i++){
+              if(motion_phase_projectile && checkCollision(*projectile,*obstacles[i],&centre,&rad)){
+                onCollision(projectile,obstacles[i],centre,rad);
+               }
+            }
             if(motion_phase_projectile){
-
               projectile->updatePosition(current_time-motion_start_time);
             }
-            
+            if(obstacles[4]->getAngle()>=23 || obstacles[4]->getAngle()<=-23)
+              theta*=-1;
+            obstacles[4]->updateAngle(theta,-25,25);
             //****canon->updateAngle();
             //base->updateAngle();
             //rec_vel+=DISPLACEMENT+VELOCITY*(current_time-start_time);

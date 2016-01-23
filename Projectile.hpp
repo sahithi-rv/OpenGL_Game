@@ -97,17 +97,18 @@ public:
 	VAO  *rectangle;
 	float rectangle_rotation;
 	float vx,vy,vz;
-	float sideX,sideY;
+	float sideX,sideY,sideZ;
 	float boundary_radius,cor,force;
 	vector<pair<float,float> > boundary_points;
 	double mass;int fill;
-	Quadrilateral(float rot,float v_x,float v_y,float v_z,float sdX,float sdY,float rad,float COR,float NF,double m,int filled ){
+	Quadrilateral(float rot,float v_x,float v_y,float v_z,float sdX,float sdY,float sdZ,float rad,float COR,float NF,double m,int filled ){
 		rectangle_rotation=rot;
 		vx=v_x;
 		vy=v_y;
 		vz=v_z;
 		sideX=sdX;
 		sideY=sdY;
+		sideZ=sdZ;
 		boundary_radius = rad;
 		cor = COR;
 		force = NF;
@@ -118,6 +119,12 @@ public:
 	float getX(){ return vx ;}
 
 	float getY(){ return vy ;}
+	float getZ(){ return vz ;}
+
+	float getSideZ(){
+		return sideZ;
+	}
+
 
 	float getSideX(){
 		return sideX;
@@ -158,13 +165,13 @@ public:
 		vertex_buffer_data[5]=0;
 		vertex_buffer_data[6]=0+sideX;
 		vertex_buffer_data[7]=0+sideY;
-		vertex_buffer_data[8]=0;
+		vertex_buffer_data[8]=0+sideZ;
 		vertex_buffer_data[9]=0+sideX;
 		vertex_buffer_data[10]=0+sideY;
-		vertex_buffer_data[11]=0;
+		vertex_buffer_data[11]=0+sideZ;
 		vertex_buffer_data[12]=0+sideX;
 		vertex_buffer_data[13]=0;
-		vertex_buffer_data[14]=0;
+		vertex_buffer_data[14]=0+sideZ;
 		vertex_buffer_data[15]=0;
 		vertex_buffer_data[16]=0;
 		vertex_buffer_data[17]=0;		
@@ -244,9 +251,9 @@ public:
   		}
   	}
 
-	void updateAngle(float theta){
+	void updateAngle(float theta,float mini,float maxi){
 		rectangle_rotation += theta;
-		if(rectangle_rotation>=90 || rectangle_rotation<=0)
+		if(rectangle_rotation>=maxi || rectangle_rotation<=mini)
 			rectangle_rotation -= theta;
 	
 	}
@@ -318,6 +325,19 @@ public:
 		void setVY(float dy){
 			v_y=dy;
 		}
+		float getAX(){
+			return ax;
+		}
+		float getAY(){
+			return gravity;
+		}
+
+		void setAX(float dx){
+			ax=dx;
+		}
+		void setAY(float dy){
+			gravity=dy;
+		}
 
 		float getEFX(){
 			return ext_force_x;
@@ -372,9 +392,11 @@ public:
   	}
 
   	void updatePosition(double time){
+  		//output1(ax);
   			cx+=v_x + ax*time;
   			cy+= v_y + gravity*time;
   			v_y+=gravity*time;
+  			v_x+=ax*time;
   	}
 
 

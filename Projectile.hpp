@@ -3,89 +3,6 @@
 
 #include "utility.hpp"
 
-class Projectile{
-
-	 	GLfloat* vertex_buffer;
-	 	GLfloat* color_buffer;
-	public:
-		float gravity ;
-		float ax;
-		float v_x;
-		float v_y;
-		float s_x;
-		float s_y;
-		float sideX,sideY;
-		double mass;
-		int fill;
-		VAO  *rectangle;
-		Projectile(float vx,float vy,float dx,float dy,float x,float y,float sdX,float sdY,double m,int filled){
-			gravity = vy;
-			ax=0;
-			v_x = dx;
-			v_y = dy;
-			s_x=x;
-			s_y=y;
-			sideX=sdX;
-			sideY=sdY;
-			mass = m;
-			
-		}
-
-
-
-		void setInitVertices( GLfloat vertex_buffer_data[]){
-			vertex_buffer= new GLfloat[100];
-			vertex_buffer=vertex_buffer_data;
-		}
-
-		void setInitColors( GLfloat color_buffer_data[]){
-			color_buffer=new GLfloat[100];
-			color_buffer=color_buffer_data;
-		}
-
-		// Creates the rectangle object used in this sample code
-		void createRectangle ()
-		{
-			// GL3 accepts only Triangles. Quads are not supported
-			
-			GLfloat *vertex_buffer_data = new GLfloat[100];
-			vertex_buffer_data= vertex_buffer;
-
-			GLfloat *color_buffer_data = new GLfloat[100];
-			color_buffer_data  = color_buffer;
-
-			// create3DObject creates and returns a handle to a VAO that can be used later
-			
-
-		}
-
-		void renderProjectile(){
-			glm::mat4 MVP;	// MVP = Projection * View * Model
-
-			// Compute Camera matrix (view)
-  			// Matrices.view = glm::lookAt( eye, target, up ); // Rotating Camera for 3D
-  			//  Don't change unless you are sure!!
-  			Matrices.view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0)); // Fixed camera for 2D (ortho) in XY plane
-
-  			// Compute ViewProject matrix as view/camera might not be changed for this frame (basic scenario)
-  			//  Don't change unless you are sure!!
-  			glm::mat4 VP = Matrices.projection * Matrices.view;
-  			/* Render your scene */
-
-  			// Pop matrix to undo transformations till last push matrix instead of recomputing model matrix
-  			// glPopMatrix ();
-  			Matrices.model = glm::mat4(1.0f);
-
-  			glm::mat4 translateRectangle = glm::translate (glm::vec3(s_x,s_y, 0));        // glTranslatef
- 			// glm::mat4 rotateRectangle = glm::rotate((float)(projectile.rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
-  			Matrices.model *= (translateRectangle );//* rotateRectangle);
-  			MVP = VP * Matrices.model;
-  			glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-  		}
-
-  		
-};
-
 class Quadrilateral{
 
 public:
@@ -95,6 +12,7 @@ public:
 
 
 	VAO  *rectangle;
+	double rect_rot;
 	float rectangle_rotation;
 	float vx,vy,vz;
 	float sideX,sideY,sideZ;
@@ -115,6 +33,7 @@ public:
 		force = NF;
 		mass = m;
 		fill = filled;
+		rect_rot=rot;
 	}
 
 	float getX(){ return vx ;}
@@ -213,6 +132,7 @@ public:
 	}
 
 	vector<pair<float,float> >  get4Vertices(){
+		vertices.clear();
 		double theta = rectangle_rotation - 90;
   		
   		float sx = abs(sideX) , sy = abs(sideY) ;
@@ -300,11 +220,12 @@ public:
 
 	void updateAngle(float theta,float mini,float maxi){
 		rectangle_rotation += theta;
-		if(rectangle_rotation>=maxi || rectangle_rotation<=mini){
+		
+		if(rectangle_rotation>=maxi+rect_rot || rectangle_rotation<=mini+rect_rot){
 			if(theta<0)
-				rectangle_rotation = mini-1;
+				rectangle_rotation = mini+rect_rot-1;
 			else
-				rectangle_rotation = maxi+1;
+				rectangle_rotation = maxi+rect_rot+1;
 		}
 	
 	}
@@ -450,6 +371,10 @@ public:
   			v_x+=ax*time;
   	}
 
+  	void updatePosition(float c_x,float c_y){
+  		cx=c_x;
+  		cy=c_y;
+  	}
 
 };
 

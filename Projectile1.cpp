@@ -476,7 +476,7 @@ pair<pair<float,float>,pair<float,float> > getProjectileInitPosition(Quadrilater
 
 int main (int argc, char** argv)
 {
-  float theta=1.5;
+  float theta=1;
 	 int width = SCREEN_WIDTH;
 	 int height = SCREEN_HEIGHT;
    int projectile_collision_count,flag=0;
@@ -487,7 +487,7 @@ int main (int argc, char** argv)
   obstacles[1] = new Quadrilateral(90,9.7,6.3,0,0.5,5,0,0.05,0.3,0,10000,1);
   obstacles[2] = new Quadrilateral(90,7.7,3.3,0,0.5,2,0,0.05,0.3,0,10000,1);
   obstacles[3] = new Quadrilateral(0,7.4,0.4,0,0.3,3.1,0,0.05,0.3,0,10000,1);
-  obstacles[4] = new Quadrilateral(180,5.2,6.6,0,0.3,3,0,0.05,0.3,0,10000,1);
+  obstacles[4] = new Quadrilateral(180,5.2,6.6,0,0.3,2,0,0.05,0.3,0,10000,1);
 
   for(int i=0;i<5;i++){
 
@@ -566,7 +566,7 @@ int main (int argc, char** argv)
     //*/*setBoundaries(button);
     //**setBoundaries(button_base);
 
-    
+    vector<pair<float,float> > verti;
 
     
     while (!glfwWindowShouldClose(window)) {
@@ -618,7 +618,23 @@ int main (int argc, char** argv)
         current_time = glfwGetTime(); // Time in seconds
         if ((current_time - last_update_time) >= 0.05) { 
 
-          
+          if(!stop_oscillation){
+            
+            obstacles[4]->updateAngle(theta,-25,25);
+            if(obstacles[4]->getAngle()>=obstacles[4]->rect_rot + 23 || obstacles[4]->getAngle()<=obstacles[4]->rect_rot -23)
+              theta*=-1;
+            verti.clear();
+            verti = obstacles[4]->get4Vertices();
+            int indi=0;
+            TR(verti,it){
+              //output2(SZ(verti),indi);
+              //output2((*it).F,(*it).S);
+              borders[4][indi]->updatePosition((*it).F,(*it).S);
+              indi++;
+            }
+            
+            }
+//borders[4][1]->updatePosition(1);            
         // atleast 0.5s elapsed since last frame
             // do something every 0.5 seconds ..
 /***

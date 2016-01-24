@@ -8,9 +8,9 @@ Quadrilateral * boundary_bottom, *boundary_top, *boundary_left, *boundary_right;
 bool motion_phase_projectile = false, motion_phase_start_projectile = false, stop_oscillation = false, bound = true, bound1 = true;
 double motion_start_time;
 double projectile_init_vx,projectile_init_vy;
-Quadrilateral * back_floor;
-
-
+Quadrilateral * back_floor, *back_lines[BACK_LINES];
+Line * paint[PAINT];
+Circle * back_circles[CIRCLE];
 Line * lines[LINES];
 //float rec_vel = 0;
 /* Executed when a regular key is pressed/released/held-down */
@@ -120,11 +120,27 @@ void draw ()
    back_floor->renderQuad();
    draw3DObject(back_floor->rectangle);
 
+   for(int i=0;i<BACK_LINES;i++){
+    back_lines[i]->renderQuad();
+    draw3DObject(back_lines[i]->rectangle);
+   }
+
+   for(int i=0;i<PAINT;i++){
+    paint[i]->renderLine();
+    draw3DObject(paint[i]->line);
+   }
+
+   for(int i=0;i<CIRCLE;i++){
+    back_circles[i]->renderCircle();
+    draw3DObject(back_circles[i]->circle);
+  }
+
+
    for(int i=0;i<STATIC_OBSTACLES;i++){
     obstacles[i]->renderQuad();
     draw3DObject(obstacles[i]->rectangle);
   }
-
+  
 for(int j=0;j<5;j++){
   for(int i=0;i<4;i++){
     borders[j][i]->renderCircle();
@@ -234,6 +250,15 @@ void setInitials(Quadrilateral *box,float r,float g,float b){
   box->createRectangle ();
 }
 
+void setInitials(Quadrilateral *box,float r,float g,float b,GLfloat * vertex_buffer_data){
+
+
+  GLfloat * colors = box->getInitColors(r,g,b);
+  box->setInitVertices(vertex_buffer_data);
+  box->setInitColors(colors);
+  box->createRectangle ();
+}
+
 void setInitials(Line *box,float r,float g,float b){
 
   GLfloat * vertex_buffer_data;
@@ -262,6 +287,15 @@ for(int j=0;j<5;j++){
     borders[j][i]->setInitColors(hinge_colors);
     borders[j][i]->createCircle();
   }
+}
+
+GLfloat * circle_vertices , * circle_colors;
+for(int i=0;i<CIRCLE;i++){
+  circle_vertices = circleVertices(back_circles[i]->num_vertices,back_circles[i]->radius);
+  circle_colors = circleColors(back_circles[i]->num_vertices,1,1,1);
+  back_circles[i]->setInitVertices(circle_vertices);
+    back_circles[i]->setInitColors(circle_colors);
+    back_circles[i]->createCircle();
 }
 
 /***
@@ -321,6 +355,32 @@ for(int j=0;j<5;j++){
   back_floor->setInitVertices(back_floor_vertices);
   back_floor->setInitColors(colors);
   back_floor->createRectangle();
+
+ GLfloat back_line1[]={
+   -0.25,-4,0,
+    0,4,0,
+    0.25,4,0,
+
+    0.25,4,0,
+    0,-4,0,
+    -0.25,-4,0,
+  };
+  setInitials(back_lines[0],1, 1, 0.941176,back_line1);
+
+  for(int i = 0 ;i<PAINT;i++){
+    setInitials(paint[i],1, 1, 0.941176);
+  }
+ /* GLfloat back_line2[]={
+    -8,-2,0,
+    -8.3,-1.7,0,
+    -4,-0.7,0,
+    
+    -4,-0.7,0,
+    -3.7,-1,0,
+    -8,-2,0,
+  };
+  setInitials(back_lines[1],1, 1, 0.941176,back_line2);*/
+
 /****
   setInitials(button,0.862745, 0.0784314, 0.235294);
 
@@ -494,7 +554,7 @@ int main (int argc, char** argv)
   vector<pair<float,float> > vert = obstacles[i]->get4Vertices();
     int ind=0;
     TR(vert,it){
-      output2((*it).F,(*it).S);
+     //output2((*it).F,(*it).S);
       borders[i][ind] = new Circle(360,0,0,0,0,(*it).F,(*it).S,0,0.05,0,0);
       ind++;
     }
@@ -545,11 +605,22 @@ int main (int argc, char** argv)
 
       back_floor = new Quadrilateral(0,0,0,0,6,5,0,0.05,0.3,0,10000,1);
 
+      back_lines[0] = new Quadrilateral(0,0,0,0,5,5,0,0.05,0.3,0,10000,1);
+      //back_lines[1] = new Quadrilateral(0,0,0,0,5,5,0,0.05,0.3,0,10000,1);
 
+      paint[0] = new Line(-9.3,2,0,-5,4);
+      paint[1] = new Line(-9.7,-2,0,5,4);
+      paint[2] = new Line(-5.8,-1.33,0,40,2.7);
 
+      paint[3] = new Line(6.2,1.35,0,185,4);
+      paint[4] = new Line(6.2,-1.35,0,175,4);
+      paint[5] = new Line(6.2,-1.33,0,45,2.7);
 
-
-
+      back_circles[0] = new Circle(360,0,0,0,0,-5.6,0.0,0,1.35,0,0,0);
+      back_circles[1] = new Circle(360,0,0,0,0,0,0,0,1.35,0,0,1);
+      back_circles[2] = new Circle(360,0,0,0,0,-8,0,0,4,0,0,0);
+      back_circles[3] = new Circle(360,0,0,0,0,6.2,0,0,1.35,0,0,0);
+      back_circles[4] = new Circle(360,0,0,0,0,8.5,0,0,4,0,0,0);
 
     GLFWwindow* window = initGLFW(width, height);
 	  initGL (window, width, height);

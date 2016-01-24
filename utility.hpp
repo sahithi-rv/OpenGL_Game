@@ -11,6 +11,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <ctime>
 
+#define CIRCLE 5
+#define PAINT 6
+#define BACK_LINES 1
 #define BORDERS 16
 #define CHANCES 3
 #define LINES 7

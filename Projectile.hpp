@@ -141,18 +141,18 @@ public:
   		float syc  = sy*cos(theta*M_PI/180.0f), sys = sy*sin(theta*M_PI/180.0f);
 
   		vertices.PB( MP(x1,y1) );
-  		output1(theta);
+  		//output1(theta);
   		
   		
   		theta+=90;
-  		output1(theta);
+  		//output1(theta);
   		 sxc = sx*cos(theta*M_PI/180.0f) , sxs = sx*sin(theta*M_PI/180.0f);
   		 syc  = sy*cos(theta*M_PI/180.0f), sys = sy*sin(theta*M_PI/180.0f);
   		 x1+=sxc;y1+=sxs;
   		vertices.PB( MP(x1,y1) );
 
   		
-  		theta+=90;  		output1(theta);
+  		theta+=90;  		//output1(theta);
 
   		 sxc = sx*cos(theta*M_PI/180.0f) , sxs = sx*sin(theta*M_PI/180.0f);
   		 syc  = sy*cos(theta*M_PI/180.0f), sys = sy*sin(theta*M_PI/180.0f);
@@ -160,7 +160,7 @@ public:
   		vertices.PB( MP(x1,y1) );
 
   		
-  		theta+=90;  		output1(theta);
+  		theta+=90;  		//output1(theta);
 
   		 sxc = sx*cos(theta*M_PI/180.0f) , sxs = sx*sin(theta*M_PI/180.0f);
   		 syc  = sy*cos(theta*M_PI/180.0f), sys = sy*sin(theta*M_PI/180.0f);
@@ -246,7 +246,7 @@ public:
 	GLfloat* vertex_buffer;
 	GLfloat* color_buffer;
 	VAO * circle;
-	int num_vertices;
+	int num_vertices,flag;
 	float cx,cy,cz,radius;
 	float gravity ;
 	float ax;
@@ -255,7 +255,7 @@ public:
 	float s_x;
 	float s_y;
 	float ext_force_x,ext_force_y;
-    Circle(int num,float vx,float vy,float dx,float dy,float c_x,float c_y,float c_z,float r,float EFX,float EFY){
+    Circle(int num,float vx,float vy,float dx,float dy,float c_x,float c_y,float c_z,float r,float EFX,float EFY,int fl=1){
 			gravity = vy;
 			ax=vx;
 			v_x = dx;
@@ -267,6 +267,7 @@ public:
 			cz = c_z;
 			ext_force_x= EFX;
 			ext_force_y = EFY;
+			flag=fl;
 	}
 
 		float getX(){ return cx ;}
@@ -339,8 +340,11 @@ public:
 	}
 
 	void createCircle(){
-			
-		circle = create3DObject(GL_TRIANGLE_FAN,num_vertices,vertex_buffer,color_buffer,GL_FILL);
+		if(flag)
+			circle = create3DObject(GL_TRIANGLE_FAN,num_vertices,vertex_buffer,color_buffer,GL_FILL);
+		else 
+			circle = create3DObject(GL_LINES,num_vertices,vertex_buffer,color_buffer,GL_LINE);
+
 	}
 
 	void renderCircle(){

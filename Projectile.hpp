@@ -213,7 +213,7 @@ public:
 	}
 
 	vector<pair<float,float> >  get4Vertices(){
-		double theta = 0;
+		double theta = rectangle_rotation - 90;
   		
   		float sx = abs(sideX) , sy = abs(sideY) ;
   		float x1 = vx, y1 = vy; 
@@ -277,7 +277,7 @@ public:
 
 
   		glm::mat4 translateRectangle = glm::translate (glm::vec3(vx,vy,vz));        // glTranslatef
- 	    glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f*-1), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+ 	    glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
   		Matrices.model *= translateRectangle*((rotateRectangle ));
   		MVP = VP * Matrices.model;
   		glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);

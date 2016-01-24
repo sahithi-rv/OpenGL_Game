@@ -11,6 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <ctime>
 
+#define BORDERS 16
 #define CHANCES 3
 #define LINES 7
 #define STATIC_OBSTACLES 5
@@ -296,6 +297,6 @@ void reshapeWindow (GLFWwindow* window, int width, int height)
     // Matrices.projection = glm::perspective (fov, (GLfloat) fbwidth / (GLfloat) fbheight, 0.1f, 500.0f);
 
     // Ortho projection for 2D views
-    Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
+    Matrices.projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 500.0f);
 }
 

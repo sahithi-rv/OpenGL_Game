@@ -1,7 +1,7 @@
 #include "Projectile.hpp"
 //#include "utility.hpp"
 
-Circle *projectile,*hinge, *borders[4];
+Circle *projectile,*hinge, *borders[5][4];
 Quadrilateral * canon, *base, *obstacles[15], *bar[15], *tar, *button , *button_base;
 
 Quadrilateral * boundary_bottom, *boundary_top, *boundary_left, *boundary_right;
@@ -113,21 +113,35 @@ void draw ()
   ****/
   //  Don't change unless you are sure!!
  
+
+
   // Increment angles
  // float increments = 1;
    back_floor->renderQuad();
    draw3DObject(back_floor->rectangle);
-  if(motion_phase_projectile){
+
+   for(int i=0;i<STATIC_OBSTACLES;i++){
+    obstacles[i]->renderQuad();
+    draw3DObject(obstacles[i]->rectangle);
+  }
+
+for(int j=0;j<5;j++){
+  for(int i=0;i<4;i++){
+    borders[j][i]->renderCircle();
+    draw3DObject(borders[j][i]->circle);
+  }
+}
+/****  if(motion_phase_projectile){
     projectile->renderCircle();
     draw3DObject(projectile->circle);
   }
 
-  /***
+  
   canon->renderQuad();
   draw3DObject(canon->rectangle);
   base->renderQuad();
   draw3DObject(base->rectangle);
-  ****/
+ 
   tar->renderQuad();
   draw3DObject(tar->rectangle);
 
@@ -149,15 +163,9 @@ void draw ()
       draw3DObject(bar[i]->rectangle);
   }
 
-  for(int i=0;i<STATIC_OBSTACLES;i++){
-    obstacles[i]->renderQuad();
-    draw3DObject(obstacles[i]->rectangle);
-  }
+  
 
-  for(int i=0;i<4;i++){
-    borders[i]->renderCircle();
-    draw3DObject(borders[i]->circle);
-  }
+  
 
   hinge->renderCircle();
   draw3DObject(hinge->circle);
@@ -165,7 +173,7 @@ void draw ()
   for(int i=0;i<LINES;i++){
     lines[i]->renderLine();
     draw3DObject(lines[i]->line);
-  }
+  }*****/
 }
 
 /* Initialise glfw window, I/O callbacks and the renderer to use */
@@ -242,10 +250,24 @@ void setInitials(Line *box,float r,float g,float b){
 void initGL (GLFWwindow* window, int width, int height)
 {
   
+for(int i=0;i<STATIC_OBSTACLES;i++){
+   setInitials(obstacles[i],1, 0.54902, 0);
+  }
+
+  GLfloat * hinge_vertices = circleVertices(borders[0][0]->num_vertices, borders[0][0]->radius);
+  GLfloat * hinge_colors = circleColors(borders[0][0]->num_vertices,0.662745, 0.662745, 0.662745);
+for(int j=0;j<5;j++){
+  for(int i=0;i<4;i++){
+    borders[j][i]->setInitVertices(hinge_vertices);
+    borders[j][i]->setInitColors(hinge_colors);
+    borders[j][i]->createCircle();
+  }
+}
+
 /***
   setInitials(canon,0.870588, 0.721569, 0.529412);
   setInitials(base,0.372549, 0.619608, 0.627451);
- ****/ 
+  
   setInitials(boundary_bottom,1,1,1);
   //setInitials(boundary_top);
   //setInitials(boundary_left);
@@ -253,23 +275,16 @@ void initGL (GLFWwindow* window, int width, int height)
 
   setInitials(tar,0.8,0.1,0);
 
-  GLfloat * hinge_vertices = circleVertices(hinge->num_vertices, hinge->radius);
-  GLfloat * hinge_colors = circleColors(hinge->num_vertices,0.662745, 0.662745, 0.662745);
+  
 
   hinge->setInitVertices(hinge_vertices);
   hinge->setInitColors(hinge_colors);
   hinge->createCircle();
 
-  for(int i=0;i<4;i++){
-    borders[i]->setInitVertices(hinge_vertices);
-    borders[i]->setInitColors(hinge_colors);
-    borders[i]->createCircle();
-  }
+  
 
 
-  for(int i=0;i<STATIC_OBSTACLES;i++){
-   setInitials(obstacles[i],0.823529, 0.411765, 0.117647);
-  }
+  
  // setInitials(obstacle1,1,1,1);
   for(int i=0;i<=10;i++){
       setInitials(bar[i],float(i)/10,1-float(i)/10,0);
@@ -290,28 +305,28 @@ void initGL (GLFWwindow* window, int width, int height)
   button_base->setInitVertices(button_base_vertices);
   button_base->setInitColors(colors);
   button_base->createRectangle();
-
+*****/
   GLfloat back_floor_vertices[]={
-    -3.8,-2,0,
-    -3.5,2,0,
-    4,2,0,
+    -10,-4,0,
+    -9,4,0,
+    10,4,0,
 
-    4,2,0,
-    4,-2,0,
-    -3.8,-2,0,
+    10,4,0,
+    10,-4,0,
+    -10,-4,0,
 
   };
 
-  colors = back_floor->getInitColors(0.741176, 0.717647, 0.419608);
+  GLfloat * colors = back_floor->getInitColors(0.721569, 0.52549, 0.0431373);
   back_floor->setInitVertices(back_floor_vertices);
   back_floor->setInitColors(colors);
   back_floor->createRectangle();
-
+/****
   setInitials(button,0.862745, 0.0784314, 0.235294);
 
   for(int i=0;i<LINES;i++)
     setInitials(lines[i],1,1,1);
- 
+ ***/
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
@@ -321,7 +336,7 @@ void initGL (GLFWwindow* window, int width, int height)
 	reshapeWindow (window, width, height);
 
     // Background color of the scene
-	glClearColor ( 0.823529, 0.705882, 0.54902, 0.f); // R, G, B, A
+	glClearColor ( 1, 0.980392, 0.803922 ,0.f); // R, G, B, A
 	glClearDepth (1.0f);
 
 	glEnable (GL_DEPTH_TEST);
@@ -467,23 +482,43 @@ int main (int argc, char** argv)
    int projectile_collision_count,flag=0;
    float collide_vel;
    speed_level=0;
+
+  obstacles[0] = new Quadrilateral(1,9.7,0,0,0.3,7,0,0.05,0.3,0,10000,1);
+  obstacles[1] = new Quadrilateral(90,9.7,6.3,0,0.5,5,0,0.05,0.3,0,10000,1);
+  obstacles[2] = new Quadrilateral(90,7.7,3.3,0,0.5,2,0,0.05,0.3,0,10000,1);
+  obstacles[3] = new Quadrilateral(0,7.4,0.4,0,0.3,3.1,0,0.05,0.3,0,10000,1);
+  obstacles[4] = new Quadrilateral(180,5.2,6.6,0,0.3,3,0,0.05,0.3,0,10000,1);
+
+  for(int i=0;i<5;i++){
+
+  vector<pair<float,float> > vert = obstacles[i]->get4Vertices();
+    int ind=0;
+    TR(vert,it){
+      output2((*it).F,(*it).S);
+      borders[i][ind] = new Circle(360,0,0,0,0,(*it).F,(*it).S,0,0.05,0,0);
+      ind++;
+    }
+  }
+
     //**** 
    /****
     canon = new Quadrilateral(0,-3.5,-3,0,0.5,3,0,0.05,0.2,0,10000,1);
     base = new Quadrilateral(0,-3.5,-4,0,2.5,1,0,0.05,0.2,0,10000,1);
 *****/
+    /***
     boundary_bottom = new Quadrilateral(0,-4,-4,0,8,0.2,0,0.05,0.9,0,10000,1);
    // boundary_top = new Quadrilateral(0,-4,3.8,0,8,0.2,0.1);
     //boundary_left = new Quadrilateral(0,3.8,-4,0,0.2,8,0.1);
     boundary_right = new Quadrilateral(0,-4.1,-4,0,0.2,8,0,0.05,0.2,0,10000,1);
     tar = new Quadrilateral(0,2.8,-2,0,0.8,0.2,0,0.05,0.2,0,10000,1);
+    ****/
     /*****/
-    obstacles[0] = new Quadrilateral(0,1.3,3.5,0,1.7,0.5,0,0.05,0.3,0,10000,1);
-    obstacles[1] = new Quadrilateral(330,3.7,2.2,0,0.4,2,0,0.05,0.3,0,10000,1);
-    obstacles[2] = new Quadrilateral(0,3.7,-1.5,0,0.3,4,0,0.05,0.3,0,10000,1);
-    obstacles[3] = new Quadrilateral(0,2.3,-1.5,0,0.3,3.3,0,0.05,0.3,0,10000,1);
-    obstacles[4] = new Quadrilateral(0,1.5,4,0,0.3,-1.8,0,0.05,0.3,0,10000,1);
-
+    //obstacles[0] = new Quadrilateral(0,1.3,3.5,0,1.7,0.5,0,0.05,0.3,0,10000,1);
+   // obstacles[1] = new Quadrilateral(330,3.7,2.2,0,0.4,2,0,0.05,0.3,0,10000,1);
+    //obstacles[2] = new Quadrilateral(0,3.7,-1.5,0,0.3,4,0,0.05,0.3,0,10000,1);
+    //obstacles[3] = new Quadrilateral(0,2.3,-1.5,0,0.3,3.3,0,0.05,0.3,0,10000,1);
+    //obstacles[4] = new Quadrilateral(0,1.5,4,0,0.3,-1.8,0,0.05,0.3,0,10000,1);
+/**
     float x1=obstacles[1]->getX(), y1 = obstacles[1]->getY();
     float sx = obstacles[1]->getSideX() , sy = obstacles[1]->getSideY();
     double the = obstacles[1]->getAngle();
@@ -504,14 +539,8 @@ int main (int argc, char** argv)
       bar[i] = new Quadrilateral(0,-3.5+float(i)/8,3.25,0,0.125,0.5,0,0,1,0,0,1); 
     }
 
-    vector<pair<float,float> > vert = obstacles[1]->get4Vertices();
-    int ind=0;
-    TR(vert,it){
-      output2((*it).F,(*it).S);
-      borders[ind] = new Circle(360,0,0,0,0,(*it).F,(*it).S,0,0.05,0,0);
-      ind++;
-    }
-
+    
+*****/
 /***** background elements****/
 
       back_floor = new Quadrilateral(0,0,0,0,6,5,0,0.05,0.3,0,10000,1);
@@ -528,14 +557,14 @@ int main (int argc, char** argv)
     double start_time=last_update_time;
     // Draw in loop
     pair <float,float> centre;float rad;
-
+/*
     boundary_right->setBoundaryPoints(boundary_right->getX()+boundary_right->getSideX(),boundary_right->getY()+boundary_right->getSideY(),boundary_right->getX()+boundary_right->getSideX(),boundary_right->getY());
     for(int i=0;i<STATIC_OBSTACLES-1;i++){
      setBoundaries(obstacles[i]);
-    }
+    }*/
 
-    setBoundaries(button);
-    setBoundaries(button_base);
+    //*/*setBoundaries(button);
+    //**setBoundaries(button_base);
 
     
 
@@ -552,7 +581,7 @@ int main (int argc, char** argv)
         // Poll for Keyboard and mouse events
         glfwPollEvents();
         
-        if(motion_phase_start_projectile){
+ /****       if(motion_phase_start_projectile){
           pair<pair<float,float>,pair<float,float> > dis;
           
           motion_phase_projectile = true;
@@ -583,13 +612,16 @@ int main (int argc, char** argv)
          
           //motion_phase_projectile = false;
         }
-
+****/
         
         // Control based on time (Time based transformation like 5 degrees rotation every 0.5s)
         current_time = glfwGetTime(); // Time in seconds
-        if ((current_time - last_update_time) >= 0.05) { // atleast 0.5s elapsed since last frame
-            // do something every 0.5 seconds ..
+        if ((current_time - last_update_time) >= 0.05) { 
 
+          
+        // atleast 0.5s elapsed since last frame
+            // do something every 0.5 seconds ..
+/***
           if(motion_phase_projectile ){
             if(projectile->getY()<=-3.5){
               
@@ -670,7 +702,7 @@ int main (int argc, char** argv)
            // output2(projectile->getX(),projectile->getY());
             if(stop_oscillation){
               float dt = distance(tar->getX()+tar->getSideX()/2,tar->getY()+tar->getSideY()/2,projectile->getX(),projectile->getY());
-              /*if(dt<=projectile->getRadius() + 0.5 && projectile->getX()>=2.8 && projectile->getX()<=3.5){
+              if(dt<=projectile->getRadius() + 0.5 && projectile->getX()>=2.8 && projectile->getX()<=3.5){
                 projectile->setX(3.2);
                 projectile->setY(-2.8);
                 projectile->setVX(0);
@@ -678,8 +710,8 @@ int main (int argc, char** argv)
                 projectile->setAX(0);
                 projectile->setAY(0);
 
-              }*/
-            }
+              }
+            }****/
             last_update_time = current_time;
         }
     }

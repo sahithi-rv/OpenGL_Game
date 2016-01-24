@@ -9,7 +9,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <ctime>
 
+#define CHANCES 3
+#define LINES 7
 #define STATIC_OBSTACLES 5
 #define MEW 0.5
 #define DISPLACEMENT 0.1
@@ -67,6 +70,17 @@ struct GLMatrices {
 } Matrices;
 
 GLuint programID;
+
+
+
+inline void mySleep(clock_t sec) // clock_t is a like typedef unsigned int clock_t. Use clock_t instead of integer in this context
+{
+clock_t start_time = clock();
+clock_t end_time = sec * 1000 + start_time;
+while(clock() != end_time){
+	//output1("Sdf");
+}
+} 
 
 /* Function to load Shaders - Use it as it is */
 GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path) {

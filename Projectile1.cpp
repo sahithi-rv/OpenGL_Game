@@ -1,7 +1,7 @@
 #include "Projectile.hpp"
 //#include "utility.hpp"
 
-Circle *projectile,*hinge, *borders[5][4];
+Circle *projectile,*hinge, *borders[BORDERS][4];
 Quadrilateral * canon, *base, *obstacles[15], *bar[15], *tar, *button , *button_base;
 
 Quadrilateral * boundary_bottom, *boundary_top, *boundary_left, *boundary_right;
@@ -147,7 +147,9 @@ void draw ()
     draw3DObject(obstacles[i]->rectangle);
   }
   
-for(int j=0;j<5;j++){
+  hinge->renderCircle();
+  draw3DObject(hinge->circle);
+for(int j=0;j<BORDERS;j++){
   for(int i=0;i<4;i++){
     borders[j][i]->renderCircle();
     draw3DObject(borders[j][i]->circle);
@@ -204,8 +206,7 @@ for(int j=0;j<5;j++){
 
   
 
-  hinge->renderCircle();
-  draw3DObject(hinge->circle);
+
 
   *****/
 }
@@ -299,13 +300,17 @@ for(int i=0;i<STATIC_OBSTACLES;i++){
 
   GLfloat * hinge_vertices = circleVertices(borders[0][0]->num_vertices, borders[0][0]->radius);
   GLfloat * hinge_colors = circleColors(borders[0][0]->num_vertices,0.662745, 0.662745, 0.662745);
-for(int j=0;j<5;j++){
+for(int j=0;j<BORDERS;j++){
   for(int i=0;i<4;i++){
     borders[j][i]->setInitVertices(hinge_vertices);
     borders[j][i]->setInitColors(hinge_colors);
     borders[j][i]->createCircle();
   }
 }
+
+ hinge->setInitVertices(hinge_vertices);
+  hinge->setInitColors(hinge_colors);
+  hinge->createCircle();
 
 /*for (int i = 0; i < ATTEMPT; ++i)
 {
@@ -340,19 +345,6 @@ setInitials(canon,1, 0.870588, 0.678431);
   //setInitials(boundary_left);
   setInitials(boundary_right,1,1,1);
 
-  
-
-  
-
-  hinge->setInitVertices(hinge_vertices);
-  hinge->setInitColors(hinge_colors);
-  hinge->createCircle();
-
-  
-
-
-  
- // setInitials(obstacle1,1,1,1);
   
 ***/
   GLfloat button_base_vertices[] = {
@@ -571,6 +563,19 @@ pair<pair<float,float>,pair<float,float> > getProjectileInitPosition(Quadrilater
   return MP(MP(x,y),MP(cos(M_PI/2 - theta),sin(M_PI/2 - theta)));
 }
 
+void getBorders(Quadrilateral rect, int index){
+
+   vector<pair<float,float> > vert = rect.get4Vertices();
+    int ind=0;
+    TR(vert,it){
+     //output2((*it).F,(*it).S);
+      borders[index][ind] = new Circle(360,0,0,0,0,(*it).F,(*it).S,0,0.05,0,0);
+
+      ind++;
+    }
+
+}
+
 int main (int argc, char** argv)
 {
   float theta=1;
@@ -589,45 +594,24 @@ int main (int argc, char** argv)
 
   obstacles[5] = new Quadrilateral(90,10,-0.5,0,1,19.5,0,0.05,0.3,0,10000,1);
 
-  for(int i=0;i<5;i++){
-
-  vector<pair<float,float> > vert = obstacles[i]->get4Vertices();
-    int ind=0;
-    TR(vert,it){
-     //output2((*it).F,(*it).S);
-      borders[i][ind] = new Circle(360,0,0,0,0,(*it).F,(*it).S,0,0.05,0,0);
-
-      ind++;
-    }
+  for(int i=0;i<6;i++){
+    getBorders(*obstacles[i],i);
   }
 
-    //Boundaries
 
-    //for(int i=0;i<STATIC_OBSTACLES;i++){
-  
-  /* vector<pair<float,float> > vertic;
-      for(int j=0;j<4;j++){
-        vertic.clear();
-        vertic=obstacles[2]->setBoundaryPoints(vertic[j%4].F,vertic[j%4].S,vertic[(j+1)%4].F,vertic[(j+1)%4].S);
-       }
-       ATTEMPT = SZ(vertic);
-       output1(ATTEMPT);*/
-     /*int ind=0;
-       TR(vertic,it){
-        attempt[ind] = new Circle(360,0,0,0,0,(*it).F,(*it).S,0,0.05,0,0);
-        ind++;
-       }*/
-    //}
-
-    //**** 
    
     canon = new Quadrilateral(-50,-6.8,0.8,0,0.5,2.7,0,0.05,0.2,0,10000,1);
     base = new Quadrilateral(0,-6.8,0,0,2.5,0.8,0,0.05,0.2,0,10000,1);
 
-    button_base = new Quadrilateral(0,5.9,1.3,0,0.3,1,0,0.05,1,0,10000,1);
+    button_base = new Quadrilateral(0,5.9,1.3,0,1.5,0.8,0,0.05,1,0,10000,1);
     button = new Quadrilateral(0,5.55,1.3,0,0.35,0.8,0,0.05,1,0,10000,1);
 
+    getBorders(*button,6);
+    getBorders(*button_base,7);
+
     tar = new Quadrilateral(90,9.5,1.3,0,0.4,1.5,0,0.05,0.2,0,10000,1);
+
+    getBorders(*tar,8);
 
     lines[0] = new Line(9.2,0,0,90,1);
     lines[1] = new Line(8.2,0,0,49,1.45);
@@ -646,8 +630,7 @@ int main (int argc, char** argv)
         bar[i] = new Quadrilateral(0,-9+float(i)/8,8,0,0.25,1,0,0,1,0,0,1); 
       }
 
-    /*lines[5] = new Line(8.6,-3,0,39,1.45);
-    lines[6] = new Line(8.2,-3,0,39,1.45);*/
+      hinge = new Circle(360,0,0,0,0,5.1,6.5,0,0.05,0,0);
 
     /***
     boundary_bottom = new Quadrilateral(0,-4,-4,0,8,0.2,0,0.05,0.9,0,10000,1);
@@ -656,22 +639,12 @@ int main (int argc, char** argv)
     boundary_right = new Quadrilateral(0,-4.1,-4,0,0.2,8,0,0.05,0.2,0,10000,1);
     
     ****/
-    /*****/
     
-/**
-
-
-    hinge = new Circle(360,0,0,0,0,1.65,3.8,0,0.05,0,0);
-
-    
-    
-*****/
 /***** background elements****/
 
       back_floor = new Quadrilateral(0,0,0,0,6,5,0,0.05,0.3,0,10000,1);
 
       back_lines[0] = new Quadrilateral(0,0,0,0,5,5,0,0.05,0.3,0,10000,1);
-      //back_lines[1] = new Quadrilateral(0,0,0,0,5,5,0,0.05,0.3,0,10000,1);
 
       paint[0] = new Line(-9.3,2,0,-5,4);
       paint[1] = new Line(-9.7,-2,0,5,4);
@@ -693,15 +666,6 @@ int main (int argc, char** argv)
     double start_time=last_update_time;
     // Draw in loop
     pair <float,float> centre;float rad;
-/*
-    boundary_right->setBoundaryPoints(boundary_right->getX()+boundary_right->getSideX(),boundary_right->getY()+boundary_right->getSideY(),boundary_right->getX()+boundary_right->getSideX(),boundary_right->getY());
-    for(int i=0;i<STATIC_OBSTACLES-1;i++){
-     setBoundaries(obstacles[i]);
-    }*/
-
-    //*/*setBoundaries(button);
-    //**setBoundaries(button_base);
-
     vector<pair<float,float> > verti;
 
     

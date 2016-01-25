@@ -14,7 +14,7 @@
 #define CIRCLE 5
 #define PAINT 6
 #define BACK_LINES 1
-#define BORDERS 16
+#define BORDERS 9
 #define CHANCES 3
 #define LINES 9
 #define STATIC_OBSTACLES 6

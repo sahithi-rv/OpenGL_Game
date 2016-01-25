@@ -204,7 +204,7 @@ public:
 
   	}
 
-  	void setBoundaryPoints(float x1,float y1, float x2,float y2){
+  	vector<pair<float,float> >  setBoundaryPoints(float x1,float y1, float x2,float y2){
   		float x,y;
   		double angle = atan2( (y2-y1),(x2-x1) );
   		float r = boundary_radius;
@@ -214,26 +214,48 @@ public:
   			x = x1 + r * cos(angle);
   			y = y1 + r * sin(angle);
   			boundary_points.PB(MP(x,y));
-  			r += boundary_radius/16;
+  			r += boundary_radius;
   		}
+  		return boundary_points;
   	}
 
 	void updateAngle(float theta,float mini,float maxi){
 		rectangle_rotation += theta;
 		
-		if(rectangle_rotation>=maxi+rect_rot || rectangle_rotation<=mini+rect_rot){
+		/*if(rectangle_rotation>=maxi+rect_rot || rectangle_rotation<=mini+rect_rot){
 			if(theta<0)
-				rectangle_rotation = mini+rect_rot-1;
+				rectangle_rotation = mini+rect_rot+1;
 			else
-				rectangle_rotation = maxi+rect_rot+1;
-		}
+				rectangle_rotation = maxi+rect_rot-1;
+		}*/
 	
 	}
 
-	void updatePosition(float dx){
+	void updateAngle(float theta,float mini,float maxi,int flag){
+		rectangle_rotation += theta;
+
+		if(rectangle_rotation>0)
+			rectangle_rotation=0;
+		else if(rectangle_rotation < -90)
+			rectangle_rotation=-90;
+
+		/*if(rectangle_rotation>maxi || rectangle_rotation < mini)
+			rectangle_rotation-=theta;
+		*/
+		/*if(rectangle_rotation>=maxi+rect_rot || rectangle_rotation<=mini+rect_rot){
+			if(theta<0)
+				rectangle_rotation = mini+rect_rot+1;
+			else
+				rectangle_rotation = maxi+rect_rot-1;
+		}*/
+	
+	}
+
+	void updatePosition(float dx,float mini,float maxi){
 		vx+=dx;
-		if(getX() < -4 || getX() > -2)
+		if(getX()>maxi || getX()<mini)
 			vx-=dx;
+		
 	}
 
 

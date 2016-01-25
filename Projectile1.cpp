@@ -12,6 +12,11 @@ Quadrilateral * back_floor, *back_lines[BACK_LINES];
 Line * paint[PAINT];
 Circle * back_circles[CIRCLE];
 Line * lines[LINES];
+
+
+int ATTEMPT;
+
+ Circle * attempt[10000];
 //float rec_vel = 0;
 /* Executed when a regular key is pressed/released/held-down */
 /* Prefered for Keyboard events */
@@ -28,16 +33,16 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
               //}
                 break;
             case GLFW_KEY_D:
-                canon->updatePosition(CANON_STEP);
+                canon->updatePosition(CANON_STEP,-6.8,-4.8);
                 break;
             case GLFW_KEY_A:
-                canon->updatePosition(-1*CANON_STEP);
+                canon->updatePosition(-1*CANON_STEP,-6.8,-4.8);
                 break;
             case GLFW_KEY_W:
-                canon->updateAngle(-1*CANON_ROTATION,0,90);
+                canon->updateAngle(CANON_ROTATION,0,-90,1);
                 break;
             case GLFW_KEY_S:
-                canon->updateAngle(CANON_ROTATION,0,90);
+                canon->updateAngle(-1*CANON_ROTATION,0,-90,1);
                 break;
             case GLFW_KEY_UP:
                 if(speed_level<10)
@@ -136,6 +141,11 @@ void draw ()
   }
 
 
+   /*for(int i=0;i<ATTEMPT;i++){
+    attempt[i]->renderCircle();
+    draw3DObject(attempt[i]->circle);
+  }*/
+
    for(int i=0;i<STATIC_OBSTACLES;i++){
     obstacles[i]->renderQuad();
     draw3DObject(obstacles[i]->rectangle);
@@ -147,24 +157,11 @@ for(int j=0;j<5;j++){
     draw3DObject(borders[j][i]->circle);
   }
 }
-/****  if(motion_phase_projectile){
-    projectile->renderCircle();
-    draw3DObject(projectile->circle);
-  }
 
-  
   canon->renderQuad();
   draw3DObject(canon->rectangle);
   base->renderQuad();
   draw3DObject(base->rectangle);
- 
-  tar->renderQuad();
-  draw3DObject(tar->rectangle);
-
-  boundary_bottom->renderQuad();
-  draw3DObject(boundary_bottom->rectangle);
-  boundary_right->renderQuad();
-  draw3DObject(boundary_right->rectangle);
 
   button_base->renderQuad();
   draw3DObject(button_base->rectangle);
@@ -172,6 +169,31 @@ for(int j=0;j<5;j++){
 
   button->renderQuad();
   draw3DObject(button->rectangle);
+
+  tar->renderQuad();
+  draw3DObject(tar->rectangle);
+
+  for(int i=0;i<LINES;i++){
+    lines[i]->renderLine();
+    draw3DObject(lines[i]->line);
+  }
+
+
+/****  if(motion_phase_projectile){
+    projectile->renderCircle();
+    draw3DObject(projectile->circle);
+  }
+
+  
+  
+ 
+  
+  boundary_bottom->renderQuad();
+  draw3DObject(boundary_bottom->rectangle);
+  boundary_right->renderQuad();
+  draw3DObject(boundary_right->rectangle);
+
+  
   
   for(int i=0;i<=speed_level;i++){
         
@@ -186,10 +208,7 @@ for(int j=0;j<5;j++){
   hinge->renderCircle();
   draw3DObject(hinge->circle);
 
-  for(int i=0;i<LINES;i++){
-    lines[i]->renderLine();
-    draw3DObject(lines[i]->line);
-  }*****/
+  *****/
 }
 
 /* Initialise glfw window, I/O callbacks and the renderer to use */
@@ -289,6 +308,13 @@ for(int j=0;j<5;j++){
   }
 }
 
+/*for (int i = 0; i < ATTEMPT; ++i)
+{
+  attempt[i]->setInitVertices(hinge_vertices);
+    attempt[i]->setInitColors(hinge_colors);
+    attempt[i]->createCircle();
+}
+*/
 GLfloat * circle_vertices , * circle_colors;
 for(int i=0;i<CIRCLE;i++){
   circle_vertices = circleVertices(back_circles[i]->num_vertices,back_circles[i]->radius);
@@ -298,16 +324,20 @@ for(int i=0;i<CIRCLE;i++){
     back_circles[i]->createCircle();
 }
 
+setInitials(canon,1, 0.870588, 0.678431);
+  setInitials(base,0, 0, 0.501961);
+
+  setInitials(tar,0.8,0.1,0);
+
 /***
-  setInitials(canon,0.870588, 0.721569, 0.529412);
-  setInitials(base,0.372549, 0.619608, 0.627451);
+  
   
   setInitials(boundary_bottom,1,1,1);
   //setInitials(boundary_top);
   //setInitials(boundary_left);
   setInitials(boundary_right,1,1,1);
 
-  setInitials(tar,0.8,0.1,0);
+  
 
   
 
@@ -323,14 +353,14 @@ for(int i=0;i<CIRCLE;i++){
   for(int i=0;i<=10;i++){
       setInitials(bar[i],float(i)/10,1-float(i)/10,0);
   }
-
+***/
   GLfloat button_base_vertices[] = {
     0,0,0,
-    0,0.5,0,
-    0.3,0.75,0,
+    0,0.8,0,
+    1.5,1.25,0,
 
-    0.3,0.75,0,
-    0.3,-0.25,0,
+    1.5,1.25,0,
+    1.5,-0.45,0,
     0,0,0
 
   } ;
@@ -339,7 +369,7 @@ for(int i=0;i<CIRCLE;i++){
   button_base->setInitVertices(button_base_vertices);
   button_base->setInitColors(colors);
   button_base->createRectangle();
-*****/
+
   GLfloat back_floor_vertices[]={
     -10,-4,0,
     -9,4,0,
@@ -351,7 +381,7 @@ for(int i=0;i<CIRCLE;i++){
 
   };
 
-  GLfloat * colors = back_floor->getInitColors(0.721569, 0.52549, 0.0431373);
+  colors = back_floor->getInitColors(0.721569, 0.52549, 0.0431373);
   back_floor->setInitVertices(back_floor_vertices);
   back_floor->setInitColors(colors);
   back_floor->createRectangle();
@@ -381,12 +411,12 @@ for(int i=0;i<CIRCLE;i++){
   };
   setInitials(back_lines[1],1, 1, 0.941176,back_line2);*/
 
-/****
+
   setInitials(button,0.862745, 0.0784314, 0.235294);
 
   for(int i=0;i<LINES;i++)
     setInitials(lines[i],1,1,1);
- ***/
+
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
@@ -544,9 +574,10 @@ int main (int argc, char** argv)
    speed_level=0;
 
   obstacles[0] = new Quadrilateral(1,9.7,0,0,0.3,7,0,0.05,0.3,0,10000,1);
+
   obstacles[1] = new Quadrilateral(90,9.7,6.3,0,0.5,5,0,0.05,0.3,0,10000,1);
   obstacles[2] = new Quadrilateral(90,7.7,3.3,0,0.5,2,0,0.05,0.3,0,10000,1);
-  obstacles[3] = new Quadrilateral(0,7.4,0.4,0,0.3,3.1,0,0.05,0.3,0,10000,1);
+  obstacles[3] = new Quadrilateral(0,7.4,0,0,0.3,3.5,0,0.05,0.3,0,10000,1);
   obstacles[4] = new Quadrilateral(180,5.2,6.6,0,0.3,2,0,0.05,0.3,0,10000,1);
 
   for(int i=0;i<5;i++){
@@ -556,41 +587,71 @@ int main (int argc, char** argv)
     TR(vert,it){
      //output2((*it).F,(*it).S);
       borders[i][ind] = new Circle(360,0,0,0,0,(*it).F,(*it).S,0,0.05,0,0);
+
       ind++;
     }
   }
 
+    //Boundaries
+
+    //for(int i=0;i<STATIC_OBSTACLES;i++){
+  
+  /* vector<pair<float,float> > vertic;
+      for(int j=0;j<4;j++){
+        vertic.clear();
+        vertic=obstacles[2]->setBoundaryPoints(vertic[j%4].F,vertic[j%4].S,vertic[(j+1)%4].F,vertic[(j+1)%4].S);
+       }
+       ATTEMPT = SZ(vertic);
+       output1(ATTEMPT);*/
+     /*int ind=0;
+       TR(vertic,it){
+        attempt[ind] = new Circle(360,0,0,0,0,(*it).F,(*it).S,0,0.05,0,0);
+        ind++;
+       }*/
+    //}
+
     //**** 
-   /****
-    canon = new Quadrilateral(0,-3.5,-3,0,0.5,3,0,0.05,0.2,0,10000,1);
-    base = new Quadrilateral(0,-3.5,-4,0,2.5,1,0,0.05,0.2,0,10000,1);
-*****/
+   
+    canon = new Quadrilateral(-20,-6.8,0.8,0,0.5,2.7,0,0.05,0.2,0,10000,1);
+    base = new Quadrilateral(0,-6.8,0,0,2.5,0.8,0,0.05,0.2,0,10000,1);
+
+    button_base = new Quadrilateral(0,5.9,1.3,0,0.3,1,0,0.05,1,0,10000,1);
+    button = new Quadrilateral(0,5.55,1.3,0,0.35,0.8,0,0.05,1,0,10000,1);
+
+    tar = new Quadrilateral(90,9.5,1.3,0,0.4,1.5,0,0.05,0.2,0,10000,1);
+
+    lines[0] = new Line(9.2,0,0,90,1);
+    lines[1] = new Line(8.2,0,0,49,1.45);
+    lines[2] = new Line(9.2,0,0,39,1.45);
+
+    lines[3] = new Line(8.9,0,0,49,1.36);
+    lines[4] = new Line(9.2,0,0,49,1.36);
+    lines[5] = new Line(8.6,0,0,49,1.36);
+
+     lines[6] = new Line(8.4,0,0,39,1.36);
+     lines[7] = new Line(8.7,0,0,39,1.36);
+     lines[8] = new Line(9.0,0,0,39,1.36);
+    /*lines[5] = new Line(8.6,-3,0,39,1.45);
+    lines[6] = new Line(8.2,-3,0,39,1.45);*/
+
     /***
     boundary_bottom = new Quadrilateral(0,-4,-4,0,8,0.2,0,0.05,0.9,0,10000,1);
    // boundary_top = new Quadrilateral(0,-4,3.8,0,8,0.2,0.1);
     //boundary_left = new Quadrilateral(0,3.8,-4,0,0.2,8,0.1);
     boundary_right = new Quadrilateral(0,-4.1,-4,0,0.2,8,0,0.05,0.2,0,10000,1);
-    tar = new Quadrilateral(0,2.8,-2,0,0.8,0.2,0,0.05,0.2,0,10000,1);
+    
     ****/
     /*****/
-    //obstacles[0] = new Quadrilateral(0,1.3,3.5,0,1.7,0.5,0,0.05,0.3,0,10000,1);
-   // obstacles[1] = new Quadrilateral(330,3.7,2.2,0,0.4,2,0,0.05,0.3,0,10000,1);
-    //obstacles[2] = new Quadrilateral(0,3.7,-1.5,0,0.3,4,0,0.05,0.3,0,10000,1);
-    //obstacles[3] = new Quadrilateral(0,2.3,-1.5,0,0.3,3.3,0,0.05,0.3,0,10000,1);
-    //obstacles[4] = new Quadrilateral(0,1.5,4,0,0.3,-1.8,0,0.05,0.3,0,10000,1);
+    
 /**
-    float x1=obstacles[1]->getX(), y1 = obstacles[1]->getY();
-    float sx = obstacles[1]->getSideX() , sy = obstacles[1]->getSideY();
-    double the = obstacles[1]->getAngle();
+
 
     hinge = new Circle(360,0,0,0,0,1.65,3.8,0,0.05,0,0);
 
     button_base = new Quadrilateral(0,2,-0.5,0,0.3,1,0,0.05,1,0,10000,1);
     button = new Quadrilateral(0,1.85,-0.5,0,0.15,0.5,0,0.05,1,0,10000,1);
 
-    lines[0] = new Line(2.8,-2,0,320,1);
-    lines[1] = new Line(2.97,-3,0,0,0.45);
-    lines[2] = new Line(3.42,-3,0,41,1);
+    
     lines[3] = new Line(3.0,-2,0,320,1);
     lines[4] = new Line(3.2,-2,0,320,1);
     lines[5] = new Line(3.2,-3,0,41,1);

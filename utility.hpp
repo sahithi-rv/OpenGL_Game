@@ -17,7 +17,7 @@
 #define BORDERS 16
 #define CHANCES 3
 #define LINES 9
-#define STATIC_OBSTACLES 5
+#define STATIC_OBSTACLES 6
 #define MEW 0.5
 #define DISPLACEMENT 0.1
 #define VELOCITY 0.15

@@ -141,10 +141,6 @@ void draw ()
   }
 
 
-   /*for(int i=0;i<ATTEMPT;i++){
-    attempt[i]->renderCircle();
-    draw3DObject(attempt[i]->circle);
-  }*/
 
    for(int i=0;i<STATIC_OBSTACLES;i++){
     obstacles[i]->renderQuad();
@@ -178,11 +174,18 @@ for(int j=0;j<5;j++){
     draw3DObject(lines[i]->line);
   }
 
+  for(int i=0;i<=speed_level;i++){
+        
+      bar[i]->renderQuad();
+      draw3DObject(bar[i]->rectangle);
+  }
 
-/****  if(motion_phase_projectile){
+  if(motion_phase_projectile){
     projectile->renderCircle();
     draw3DObject(projectile->circle);
   }
+
+/****  
 
   
   
@@ -195,11 +198,7 @@ for(int j=0;j<5;j++){
 
   
   
-  for(int i=0;i<=speed_level;i++){
-        
-      bar[i]->renderQuad();
-      draw3DObject(bar[i]->rectangle);
-  }
+  
 
   
 
@@ -329,6 +328,10 @@ setInitials(canon,1, 0.870588, 0.678431);
 
   setInitials(tar,0.8,0.1,0);
 
+  for(int i=0;i<=10;i++){
+      setInitials(bar[i],float(i)/10,1-float(i)/10,0);
+  }
+
 /***
   
   
@@ -350,9 +353,7 @@ setInitials(canon,1, 0.870588, 0.678431);
 
   
  // setInitials(obstacle1,1,1,1);
-  for(int i=0;i<=10;i++){
-      setInitials(bar[i],float(i)/10,1-float(i)/10,0);
-  }
+  
 ***/
   GLfloat button_base_vertices[] = {
     0,0,0,
@@ -551,16 +552,22 @@ void setBoundaries(Quadrilateral *obstacle){
 }
 
 pair<pair<float,float>,pair<float,float> > getProjectileInitPosition(Quadrilateral canon){
-  double theta = canon.getAngle()*M_PI/180.0f;
+  double theta = canon.getAngle();
+ // output1(theta);
+
+  theta*=-1*M_PI/180.0f;
   float x1 = canon.getX() , y1 = canon.getY();
   float rx= canon.getSideX() , ry = canon.getSideY();
   
+ // output2(x1,y1);
+ // output2(rx,ry);
+
   float y = y1 + ry*cos(theta);
   float x = x1 + ry*sin(theta);
   y = y + rx/2*cos(M_PI/2 - theta);
   //output1(sin(M_PI/2 - theta));
   x = x + rx/2*sin(M_PI/2 - theta);
-  //output2(x,y);
+ // output2(x,y);
   return MP(MP(x,y),MP(cos(M_PI/2 - theta),sin(M_PI/2 - theta)));
 }
 
@@ -579,6 +586,8 @@ int main (int argc, char** argv)
   obstacles[2] = new Quadrilateral(90,7.7,3.3,0,0.5,2,0,0.05,0.3,0,10000,1);
   obstacles[3] = new Quadrilateral(0,7.4,0,0,0.3,3.5,0,0.05,0.3,0,10000,1);
   obstacles[4] = new Quadrilateral(180,5.2,6.6,0,0.3,2,0,0.05,0.3,0,10000,1);
+
+  obstacles[5] = new Quadrilateral(90,10,-0.5,0,1,19.5,0,0.05,0.3,0,10000,1);
 
   for(int i=0;i<5;i++){
 
@@ -612,7 +621,7 @@ int main (int argc, char** argv)
 
     //**** 
    
-    canon = new Quadrilateral(-20,-6.8,0.8,0,0.5,2.7,0,0.05,0.2,0,10000,1);
+    canon = new Quadrilateral(-50,-6.8,0.8,0,0.5,2.7,0,0.05,0.2,0,10000,1);
     base = new Quadrilateral(0,-6.8,0,0,2.5,0.8,0,0.05,0.2,0,10000,1);
 
     button_base = new Quadrilateral(0,5.9,1.3,0,0.3,1,0,0.05,1,0,10000,1);
@@ -631,6 +640,12 @@ int main (int argc, char** argv)
      lines[6] = new Line(8.4,0,0,39,1.36);
      lines[7] = new Line(8.7,0,0,39,1.36);
      lines[8] = new Line(9.0,0,0,39,1.36);
+
+
+      for(int i=0;i<=10;i++){
+        bar[i] = new Quadrilateral(0,-9+float(i)/8,8,0,0.25,1,0,0,1,0,0,1); 
+      }
+
     /*lines[5] = new Line(8.6,-3,0,39,1.45);
     lines[6] = new Line(8.2,-3,0,39,1.45);*/
 
@@ -648,18 +663,7 @@ int main (int argc, char** argv)
 
     hinge = new Circle(360,0,0,0,0,1.65,3.8,0,0.05,0,0);
 
-    button_base = new Quadrilateral(0,2,-0.5,0,0.3,1,0,0.05,1,0,10000,1);
-    button = new Quadrilateral(0,1.85,-0.5,0,0.15,0.5,0,0.05,1,0,10000,1);
-
     
-    lines[3] = new Line(3.0,-2,0,320,1);
-    lines[4] = new Line(3.2,-2,0,320,1);
-    lines[5] = new Line(3.2,-3,0,41,1);
-    lines[6] = new Line(3.0,-3,0,41,1);
-    for(int i=0;i<=10;i++){
-      bar[i] = new Quadrilateral(0,-3.5+float(i)/8,3.25,0,0.125,0.5,0,0,1,0,0,1); 
-    }
-
     
 *****/
 /***** background elements****/
@@ -712,8 +716,8 @@ int main (int argc, char** argv)
 
         // Poll for Keyboard and mouse events
         glfwPollEvents();
-        
- /****       if(motion_phase_start_projectile){
+         
+      if(motion_phase_start_projectile){
           pair<pair<float,float>,pair<float,float> > dis;
           
           motion_phase_projectile = true;
@@ -732,7 +736,7 @@ int main (int argc, char** argv)
          projectile_collision_count=0;
 
         }
-
+/**** 
         if(motion_phase_projectile && projectile->getY()>4){
            projectile->setY(6);
           motion_phase_projectile = false;
@@ -765,7 +769,12 @@ int main (int argc, char** argv)
               indi++;
             }
             
-            }
+        }
+
+
+        if(motion_phase_projectile){
+              projectile->updatePosition(current_time-motion_start_time);
+        }
 //borders[4][1]->updatePosition(1);            
         // atleast 0.5s elapsed since last frame
             // do something every 0.5 seconds ..
@@ -819,9 +828,7 @@ int main (int argc, char** argv)
                 //output2(centre.F,centre.S);
                }
             }
-            if(motion_phase_projectile){
-              projectile->updatePosition(current_time-motion_start_time);
-            }
+            
             if(!stop_oscillation){
             if(obstacles[4]->getAngle()>=23 || obstacles[4]->getAngle()<=-23)
               theta*=-1;

@@ -221,14 +221,6 @@ public:
 
 	void updateAngle(float theta,float mini,float maxi){
 		rectangle_rotation += theta;
-		
-		/*if(rectangle_rotation>=maxi+rect_rot || rectangle_rotation<=mini+rect_rot){
-			if(theta<0)
-				rectangle_rotation = mini+rect_rot+1;
-			else
-				rectangle_rotation = maxi+rect_rot-1;
-		}*/
-	
 	}
 
 	void updateAngle(float theta,float mini,float maxi,int flag){
@@ -238,17 +230,6 @@ public:
 			rectangle_rotation=0;
 		else if(rectangle_rotation < -90)
 			rectangle_rotation=-90;
-
-		/*if(rectangle_rotation>maxi || rectangle_rotation < mini)
-			rectangle_rotation-=theta;
-		*/
-		/*if(rectangle_rotation>=maxi+rect_rot || rectangle_rotation<=mini+rect_rot){
-			if(theta<0)
-				rectangle_rotation = mini+rect_rot+1;
-			else
-				rectangle_rotation = maxi+rect_rot-1;
-		}*/
-	
 	}
 
 	void updatePosition(float dx,float mini,float maxi){
@@ -295,6 +276,10 @@ public:
 		float getX(){ return cx ;}
 
 		float getY(){ return cy ;}
+
+		pair<float,float> getCentre(){
+			return MP(cx,cy);
+		}
 
 		void setX(float dx){
 			cx=dx;
@@ -392,8 +377,8 @@ public:
   	void updatePosition(double time){
   		//output1(ax);
   			cx+=v_x + ax*time;
-  			cy+= v_y + gravity*time;
-  			v_y+=gravity*time;
+  			cy+= v_y + gravity*time + ext_force_y*time;
+  			v_y+=gravity*time + ext_force_y*time;
   			v_x+=ax*time;
   	}
 

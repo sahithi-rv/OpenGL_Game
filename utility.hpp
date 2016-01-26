@@ -11,11 +11,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <ctime>
 
+#define BALL_CIRCLES 5
 #define CIRCLE 5
 #define PAINT 6
 #define BACK_LINES 1
 #define BORDERS 9
-#define CHANCES 3
+#define CHANCES 5
 #define LINES 9
 #define STATIC_OBSTACLES 6
 #define MEW 0.5
@@ -75,7 +76,7 @@ struct GLMatrices {
 
 GLuint programID;
 
-
+GLfloat zoom = 2.f;
 
 inline void mySleep(clock_t sec) // clock_t is a like typedef unsigned int clock_t. Use clock_t instead of integer in this context
 {
@@ -286,7 +287,7 @@ void reshapeWindow (GLFWwindow* window, int width, int height)
      is different from WindowSize */
     glfwGetFramebufferSize(window, &fbwidth, &fbheight);
 
-	GLfloat fov = 90.0f;
+	//GLfloat fov = 90.0f;
 
 	// sets the viewport of openGL renderer
 	glViewport (0, 0, (GLsizei) fbwidth, (GLsizei) fbheight);
@@ -297,9 +298,75 @@ void reshapeWindow (GLFWwindow* window, int width, int height)
 	   gluPerspective (fov, (GLfloat) fbwidth / (GLfloat) fbheight, 0.1, 500.0); */
 	// Store the projection matrix in a variable for future use
     // Perspective projection for 3D views
-    // Matrices.projection = glm::perspective (fov, (GLfloat) fbwidth / (GLfloat) fbheight, 0.1f, 500.0f);
+    //Matrices.projection = glm::perspective (zoom, (GLfloat) fbwidth / (GLfloat) fbheight, 0.1f, 500.0f);
 
     // Ortho projection for 2D views
-    Matrices.projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 500.0f);
+   // Matrices.projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 500.0f);
 }
 
+void scroll_callback(GLFWwindow* window, double x, double y)
+{
+    zoom += (float) y / 4.f;
+    if (zoom < 0)
+        zoom = 0;
+}
+
+
+bool getSlope(pair<float,float> pt1 , pair<float,float> pt2 , double * m){
+	if(pt1.F-pt2.F == 0){
+		*m= pt1.F;
+		return false;
+	}
+	else{
+		*m = (pt2.S - pt1.S)/(pt2.F - pt1.F);
+		return true;
+	}
+}
+
+pair< pair<float,float> , float > getLine(pair<float,float> pt1 , pair<float,float> pt2){
+	double m;
+	float x1 = pt1.F, y1 = pt1.S;
+	bool r =getSlope(pt1,pt2,&m);
+	//	output1(m);
+	if(r){
+	
+		return MP(MP(-m,1), m*x1-y1);
+	}
+	else{
+		return MP(MP(1,0),-m );
+	}
+}
+
+pair<float,float> getFoot(pair<float,float> centre, float a, float b,float c){
+	float x,y;
+	float x1 = centre.F, y1 = centre.S;
+
+	x= x1 - (a * (a*x1 + b*y1 + c) ) / (a*a + b*b);
+
+	y= y1 - (b * (a*x1 + b*y1 + c) ) / (a*a + b*b);
+
+	return MP(x,y);
+}
+
+bool isInBW( pair<float,float> foot , pair<float,float> pt1 , pair<float,float> pt2 ){
+
+	float x1 = pt1.F , x2 = pt2.F , x3 = foot.F;
+	float y1 = pt1.S , y2 = pt2.S , y3 = foot.S;
+	double m;
+
+	if(x3 == x1){
+		if(y3 == y1){
+			m =0;
+		}else{
+			m = (y2 - y3) / (y3 - y1);
+		}
+	}	
+	else{
+		m=(x2-x3)/(x3-x1);
+	}
+	if(m>=0)
+		return true;
+	else
+		return false;
+
+}

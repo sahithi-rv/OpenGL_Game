@@ -1,4 +1,4 @@
-#all: Projectile1
+all: Projectile1
 
 #sample2D: Sample_GL3_2D.cpp glad.c
 #	g++ -o sample2D Sample_GL3_2D.cpp glad.c -lGL -lglfw -ldl
